@@ -1,0 +1,129 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+
+const distDir = path.resolve(__dirname, '..', 'dist');
+const baseHtmlPath = path.join(distDir, 'index.html');
+
+function escapeAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function injectFaqJsonLd(html, faqItems) {
+  const entities = faqItems.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.a
+    }
+  }));
+  return html.replace(/"@type": "FAQPage",\s*"@id": "([^"]+)",\s*"mainEntity": \[\s*\]/, `"@type": "FAQPage",\n        "@id": "$1",\n        "mainEntity": ${JSON.stringify(entities, null, 8).replace(/\n/g, '\n        ')}`);
+}
+
+async function run() {
+  const translationsUrl = pathToFileURL(path.resolve(__dirname, '..', 'src', 'i18n', 'translations.js')).href;
+  const { TRANSLATIONS } = await import(translationsUrl);
+
+  const rawBaseHtml = fs.readFileSync(baseHtmlPath, 'utf8');
+
+  // Inject EN 10-question FAQPage into root dist/index.html
+  const enHtml = injectFaqJsonLd(rawBaseHtml, TRANSLATIONS.en.faqItems);
+  fs.writeFileSync(baseHtmlPath, enHtml, 'utf8');
+
+  const LOCALES = {
+    uk: { ogLocale: 'uk_UA', canonical: 'https://sivochka.com/canirunUnity/uk/' },
+    ru: { ogLocale: 'ru_RU', canonical: 'https://sivochka.com/canirunUnity/ru/' },
+    ko: { ogLocale: 'ko_KR', canonical: 'https://sivochka.com/canirunUnity/ko/' }
+  };
+
+  for (const [lang, meta] of Object.entries(LOCALES)) {
+    const dict = TRANSLATIONS[lang];
+    let html = injectFaqJsonLd(rawBaseHtml, dict.faqItems);
+    html = html.replace(/<html lang="en"/, `<html lang="${lang}"`);
+    html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeAttr(dict.metaTitle)}</title>`);
+    html = html.replace(
+      /<meta name="description" content="[^"]*"\s*\/?>/,
+      `<meta name="description" content="${escapeAttr(dict.metaDesc)}" />`
+    );
+    html = html.replace(
+      /<meta name="keywords" content="[^"]*"\s*\/?>/,
+      `<meta name="keywords" content="${escapeAttr(dict.metaKeywords)}" />`
+    );
+    html = html.replace(
+      /<link rel="canonical" href="[^"]*"\s*\/?>/,
+      `<link rel="canonical" href="${meta.canonical}" />`
+    );
+    html = html.replace(
+      /<meta property="og:locale" content="[^"]*"\s*\/?>/,
+      `<meta property="og:locale" content="${meta.ogLocale}" />`
+    );
+    html = html.replace(
+      /<meta property="og:url" content="[^"]*"\s*\/?>/,
+      `<meta property="og:url" content="${meta.canonical}" />`
+    );
+    html = html.replace(
+      /<meta property="og:title" content="[^"]*"\s*\/?>/,
+      `<meta property="og:title" content="${escapeAttr(dict.metaTitle)}" />`
+    );
+    html = html.replace(
+      /<meta property="og:description" content="[^"]*"\s*\/?>/,
+      `<meta property="og:description" content="${escapeAttr(dict.metaDesc)}" />`
+    );
+    html = html.replace(
+      /<meta name="twitter:title" content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:title" content="${escapeAttr(dict.metaTitle)}" />`
+    );
+    html = html.replace(
+      /<meta name="twitter:description" content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:description" content="${escapeAttr(dict.metaDesc)}" />`
+    );
+
+    // Fix relative favicon/manifest paths for nested /uk/, /ru/, /ko/ routes
+    html = html.replace(/href="\.\/favicon\.svg"/g, 'href="../favicon.svg"');
+    html = html.replace(/href="\.\/manifest\.json"/g, 'href="../manifest.json"');
+
+    const outDir = path.join(distDir, lang);
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const urls = [
+    'https://sivochka.com/canirunUnity/',
+    'https://sivochka.com/canirunUnity/uk/',
+    'https://sivochka.com/canirunUnity/ru/',
+    'https://sivochka.com/canirunUnity/ko/'
+  ];
+
+  const hreflangs = `    <xhtml:link rel="alternate" hreflang="en" href="https://sivochka.com/canirunUnity/" />
+    <xhtml:link rel="alternate" hreflang="uk" href="https://sivochka.com/canirunUnity/uk/" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://sivochka.com/canirunUnity/ru/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://sivochka.com/canirunUnity/ko/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sivochka.com/canirunUnity/" />`;
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${urls
+  .map(
+    (u) => `  <url>
+    <loc>${u}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+${hreflangs}
+  </url>`
+  )
+  .join('\n')}
+</urlset>
+`;
+
+  fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap, 'utf8');
+  console.log('Generated 4 localized HTML routes (en, uk, ru, ko) with 10-item FAQPage JSON-LD and sitemap.xml');
+}
+
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

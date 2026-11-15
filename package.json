@@ -1,0 +1,21 @@
+{
+  "name": "canirun-unity",
+  "version": "1.0.0",
+  "description": "Can I Run Unity? — In-browser hardware compatibility analyzer, FPS/compile estimator, and Local AI + Unity Engine readiness checker by Ihor Sivochka (Figarist).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/build-locales.cjs && node scripts/verify-build.cjs",
+    "preview": "vite preview",
+    "test": "node scripts/regression.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Figarist/canirunUnity.git"
+  },
+  "author": "Ihor Sivochka (Figarist)",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^6.2.0"
+  }
+}
