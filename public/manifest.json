@@ -1,0 +1,18 @@
+{
+  "name": "Can I Run Unity? — Figarist",
+  "short_name": "CanIRunUnity",
+  "description": "In-browser hardware compatibility analyzer and performance estimator for Unity Engine 6 / 2022 LTS, Render Pipelines, XR, and Local AI.",
+  "start_url": "/canirunUnity/",
+  "scope": "/canirunUnity/",
+  "display": "standalone",
+  "background_color": "#f2f0eb",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/canirunUnity/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
