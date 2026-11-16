@@ -51,3 +51,14 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  notify_failure:
+    name: Notify Telegram on failure
+    if: failure()
+    needs: [deploy-pages]
+    uses: Figarist/figarist.github.io/.github/workflows/notify-telegram.yml@main
+    with:
+      title: "canirunUnity deploy failed on ${{ github.ref_name }}"
+      status: "error"
+      details: "Commit ${{ github.sha }}"
+    secrets: inherit
