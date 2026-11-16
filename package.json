@@ -16,6 +16,6 @@
   "author": "Ihor Sivochka (Figarist)",
   "license": "MIT",
   "devDependencies": {
-    "vite": "^6.2.0"
+    "vite": "^8.3.8"
   }
 }
