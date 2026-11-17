@@ -40,12 +40,10 @@ for (const rc of routeChecks) {
   assert.equal(qCount, 12, `${rc.file} expected 12 FAQ Questions in JSON-LD, got ${qCount}`);
   assert.ok(html.includes('hreflang="uk"'), `${rc.file} missing uk hreflang`);
 
-  // Static (no-JS) requirements section, tutoring link and consistent meta tags
+  // Static (no-JS) requirements section and consistent meta tags
   assert.ok(html.includes(`data-static-requirements="${rc.lang}"`), `${rc.file} missing static requirements section`);
   assert.ok(!html.includes('<!--STATIC_REQUIREMENTS-->'), `${rc.file} still has the requirements marker`);
   assert.ok((html.match(/<h2 id="(req|how|learn)-heading">/g) || []).length === 3, `${rc.file} expected 3 static H2 headings`);
-  const tutoring = `https://sivochka.com${rc.lang === 'en' ? '' : `/${rc.lang}`}/unity/`;
-  assert.ok(html.includes(`href="${tutoring}" data-goatcounter-click="canirun-hub"`), `${rc.file} missing tutoring link ${tutoring}`);
   const metaContent = (re) => (html.match(re) || [])[1];
   const title = (html.match(/<title>([^<]*)<\/title>/) || [])[1];
   assert.ok(title && [...title.replace(/&amp;/g, '&')].length <= 60, `${rc.file} <title> missing or > 60 chars`);

@@ -90,7 +90,7 @@ async function run() {
   const fs = require('node:fs');
   const path = require('node:path');
   const { WORKFLOWS, MATRIX_TARGETS } = await import('../src/data/unity-targets.js');
-  const { renderRequirementsHtml, tutoringUrl } = await import('../src/content/static-requirements.js');
+  const { renderRequirementsHtml } = await import('../src/content/static-requirements.js');
   const reqKeys = Object.keys(TRANSLATIONS.en.reqSection).sort();
   for (const lang of ['en', 'uk', 'ru', 'ko']) {
     const rs = TRANSLATIONS[lang].reqSection;
@@ -100,15 +100,12 @@ async function run() {
     const html = renderRequirementsHtml(lang, TRANSLATIONS[lang]);
     assert.ok(!/\{\w+\}/.test(html), `Unfilled placeholder in static requirements (${lang})`);
     assert.equal((html.match(/<tr><td>/g) || []).length, WORKFLOWS.length, `Requirements table rows (${lang})`);
-    assert.ok(html.includes(`href="${tutoringUrl(lang)}" data-goatcounter-click="canirun-hub"`), `Tutoring link (${lang})`);
     const t = TRANSLATIONS[lang];
     assert.ok([...t.metaTitle].length <= 60, `metaTitle > 60 chars for ${lang}`);
     assert.ok(t.metaTitle.startsWith('Can I Run Unity?'), `metaTitle must start with brand for ${lang}`);
     const dl = [...t.metaDesc].length;
     assert.ok(dl >= 120 && dl <= 155, `metaDesc length ${dl} out of 120-155 for ${lang}`);
   }
-  assert.equal(tutoringUrl('en'), 'https://sivochka.com/');
-  assert.equal(tutoringUrl('ko'), 'https://sivochka.com/');
 
   // New FAQ numbers must match the tool's own Unity 6.0 LTS target
   const u6 = MATRIX_TARGETS.find((m) => m.id === 'unity-6-lts');

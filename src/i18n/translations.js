@@ -51,11 +51,8 @@ export const TRANSLATIONS = {
     ramFreeLabel: '{free} GB free headroom',
     vramFreeLabel: '{free} GB left for Lightmap / AI',
     btnCopyLink: 'Copy PC Link',
-    btnCopyReport: 'Copy Mentor Report',
+    btnCopyReport: 'Copy Hardware Report',
     copiedToast: 'Copied to clipboard!',
-    mentorCtaTitle: 'Want to learn Unity & C# on this PC?',
-    mentorCtaDesc: '1-on-1 mentoring with Ihor Sivochka (Figarist). Send your copied hardware report to pick the best Unity version and starter project.',
-    mentorCtaBtn: 'Book sivochka.com',
     workflowsTitle: 'Best Choice by Unity Workflow',
     workflowsSub: 'Evaluated for Scene View FPS, C# Domain Reload speed, and memory headroom.',
     matrixTitle: 'Browse All Unity Versions, Pipelines & AI',
@@ -182,7 +179,7 @@ export const TRANSLATIONS = {
       },
       {
         q: 'How can I use the Mentor Report if I want to start learning Unity & C#?',
-        a: 'Click "Copy Mentor Report" in the telemetry card and send it via Info or when booking 1-on-1 tutoring at sivochka.com/. It summarizes your OS, CPU, GPU, RAM, score, and ideal starter Unity version.'
+        a: 'Click "Copy Hardware Report" in the telemetry card to copy a clean summary of your OS, CPU, GPU, RAM, score, and ideal starter Unity version.'
       },
       {
         q: 'What are the minimum system requirements for Unity 6?',
@@ -227,7 +224,6 @@ export const TRANSLATIONS = {
         'Heavy 3D, HDRP, VR and local AI are where stronger hardware starts to matter. Run the check first, then choose a project that fits the result.',
         'Parents and learners can get help choosing a Unity version and a first project in 1-on-1 Unity lessons.'
       ],
-      learnLink: '1-on-1 Unity tutoring'
     },
     reportTemplate: 'Can I Run Unity? Hardware Report\nScore: {score}/100 (Grade {grade})\nOS: {os} | CPU: {cpu} | GPU: {gpu} ({vram} GB VRAM)\nRAM: {ram} GB | Storage: {disk} | IDE: {ide}\nBest Match: {bestWf} ({bestVer})'
   },
@@ -284,11 +280,8 @@ export const TRANSLATIONS = {
     ramFreeLabel: '{free} ГБ вільного запасу',
     vramFreeLabel: '{free} ГБ вільно для Lightmap / AI',
     btnCopyLink: 'Скопіювати посилання на ПК',
-    btnCopyReport: 'Звіт для ментора / Info',
+    btnCopyReport: 'Копіювати звіт ПК',
     copiedToast: 'Скопійовано в буфер обміну!',
-    mentorCtaTitle: 'Хочеш вивчати Unity та C# на цьому ПК?',
-    mentorCtaDesc: 'Індивідуальне менторство з Ігорем Сівочкою (Figarist). Скопіюй звіт вище, щоб ми разом обрали оптимальну версію Unity та перший проєкт.',
-    mentorCtaBtn: 'Записатися на заняття 1-на-1',
     workflowsTitle: 'Оптимальний сценарій у Unity',
     workflowsSub: 'Оцінка FPS у Scene View, швидкості компіляції C# (Domain Reload) та запасу пам’яті.',
     matrixTitle: 'Повна матриця: версії Unity, рендер та AI',
@@ -415,7 +408,7 @@ export const TRANSLATIONS = {
       },
       {
         q: 'Як використати "Звіт для ментора" перед стартом навчання Unity та C#?',
-        a: 'Натисніть кнопку «Звіт для ментора / Info» у картці результату та надішліть скопійований текст при записі на індивідуальні заняття на sivochka.com/. Це допоможе миттєво підібрати правильну версію Unity та формат занять під ваш ПК.'
+        a: 'Натисніть кнопку «Копіювати звіт ПК» у картці результату, щоб скопіювати стислий опис вашої ОС, процесора, відеокарти, ОЗП, рейтингу та оптимальної версії Unity.'
       },
       {
         q: 'Які мінімальні системні вимоги Unity 6?',
@@ -459,7 +452,6 @@ export const TRANSLATIONS = {
         'Важке 3D, HDRP, VR та локальний AI — це там, де потужніше залізо справді важливе. Спершу запустіть перевірку, а потім оберіть проєкт, що підходить до результату.',
         'Батьки та учні можуть отримати допомогу з вибором версії Unity і першого проєкту на індивідуальних уроках Unity.'
       ],
-      learnLink: 'Індивідуальні уроки Unity'
     },
     reportTemplate: 'Звіт ПК для Unity (Can I Run Unity?)\nОцінка: {score}/100 (Рівень {grade})\nОС: {os} | CPU: {cpu} | GPU: {gpu} ({vram} ГБ VRAM)\nRAM: {ram} ГБ | Диск: {disk} | IDE: {ide}\nНайкраще підходить: {bestWf} ({bestVer})'
   },
@@ -516,11 +508,8 @@ export const TRANSLATIONS = {
     ramFreeLabel: '{free} ГБ свободного запаса',
     vramFreeLabel: '{free} ГБ свободно для Lightmap / AI',
     btnCopyLink: 'Скопировать ссылку на ПК',
-    btnCopyReport: 'Отчёт для ментора / Info',
+    btnCopyReport: 'Копировать отчёт ПК',
     copiedToast: 'Скопировано в буфер обмена!',
-    mentorCtaTitle: 'Хочешь изучать Unity и C# на этом ПК?',
-    mentorCtaDesc: 'Индивидуальное менторство с Игорем Сивочкой (Figarist). Скопируй отчёт выше, чтобы подобрать оптимальную версию Unity и первый проект.',
-    mentorCtaBtn: 'Записаться на занятия 1-на-1',
     workflowsTitle: 'Оптимальный сценарий в Unity',
     workflowsSub: 'Оценка FPS в Scene View, скорости компиляции C# и запаса памяти.',
     matrixTitle: 'Полная матрица: версии Unity, рендер и AI',
@@ -647,7 +636,7 @@ export const TRANSLATIONS = {
       },
       {
         q: 'Как использовать "Отчёт для ментора" перед началом обучения Unity и C#?',
-        a: 'Нажмите «Отчёт для ментора / Info» и отправьте скопированный текст при записи на занятия 1-на-1 на sivochka.com/ — это поможет сразу подобрать оптимальную версию Unity.'
+        a: 'Нажмите «Копировать отчёт ПК», чтобы скопировать краткую сводку вашей ОС, процессора, видеокарты, ОЗУ, оценки и оптимальной версии Unity.'
       },
       {
         q: 'Каковы минимальные системные требования Unity 6?',
@@ -691,7 +680,6 @@ export const TRANSLATIONS = {
         'Тяжёлое 3D, HDRP, VR и локальный AI — это то, где более мощное железо действительно важно. Сначала запустите проверку, а затем выберите проект, подходящий под результат.',
         'Родители и ученики могут получить помощь с выбором версии Unity и первого проекта на индивидуальных уроках Unity.'
       ],
-      learnLink: 'Индивидуальные уроки Unity'
     },
     reportTemplate: 'Отчёт ПК для Unity (Can I Run Unity?)\nОценка: {score}/100 (Уровень {grade})\nОС: {os} | CPU: {cpu} | GPU: {gpu} ({vram} ГБ VRAM)\nRAM: {ram} ГБ | Диск: {disk} | IDE: {ide}\nЛучший выбор: {bestWf} ({bestVer})'
   },
@@ -748,11 +736,8 @@ export const TRANSLATIONS = {
     ramFreeLabel: '여유 공간 {free} GB',
     vramFreeLabel: 'Lightmapper / AI 여유분 {free} GB',
     btnCopyLink: 'PC 링크 복사',
-    btnCopyReport: '멘토용 리포트 복사',
+    btnCopyReport: '하드웨어 리포트 복사',
     copiedToast: '클립보드에 복사되었습니다!',
-    mentorCtaTitle: '이 PC로 Unity & C#을 배우고 싶나요?',
-    mentorCtaDesc: 'Ihor Sivochka (Figarist)와 1:1 멘토링. 위 리포트를 복사해 보내주시면 가장 알맞은 Unity 버전과 첫 프로젝트를 추천해 드립니다.',
-    mentorCtaBtn: '1:1 멘토링 신청하기',
     workflowsTitle: '워크플로별 추천 등급',
     workflowsSub: 'Scene View FPS, C# Domain Reload 속도 및 메모리 여유도를 기준으로 평가합니다.',
     matrixTitle: 'Unity 버전, 렌더 파이프라인 & AI 전체 보기',
@@ -879,7 +864,7 @@ export const TRANSLATIONS = {
       },
       {
         q: 'Unity & C# 학습을 시작할 때 멘토 리포트를 어떻게 활용하나요?',
-        a: '상단 카드의 "멘토용 리포트 복사" 버튼을 눌러 복사한 뒤 sivochka.com/ 상담 시 전달하면 PC에 딱 맞는 Unity 버전과 첫 프로젝트를 추천해 드립니다.'
+        a: '상단 카드의 "하드웨어 리포트 복사" 버튼을 누르면 OS, CPU, GPU, RAM, 점수 및 추천 Unity 버전 요약을 복사할 수 있습니다.'
       },
       {
         q: 'Unity 6의 최소 시스템 요구 사양은 무엇인가요?',
@@ -923,7 +908,6 @@ export const TRANSLATIONS = {
         '고사양 3D, HDRP, VR, 로컬 AI에서는 더 강한 하드웨어가 중요해집니다. 먼저 검사를 실행한 뒤 결과에 맞는 프로젝트를 고르세요.',
         '학부모와 학습자는 1:1 Unity 수업에서 Unity 버전과 첫 프로젝트를 고르는 도움을 받을 수 있습니다.'
       ],
-      learnLink: '1:1 Unity 수업'
     },
     reportTemplate: 'Can I Run Unity? 하드웨어 리포트\n점수: {score}/100 ({grade} 등급)\nOS: {os} | CPU: {cpu} | GPU: {gpu} ({vram} GB VRAM)\nRAM: {ram} GB | 저장장치: {disk} | IDE: {ide}\n최적 워크플로: {bestWf} ({bestVer})'
   }

@@ -12,12 +12,6 @@ import { WORKFLOWS } from '../data/unity-targets.js';
 //   1. scripts/build-locales.cjs injects the HTML into every built page (visible without JS).
 //   2. src/main.js re-renders it when the language is switched in the browser.
 
-const TUTORING_BASE = 'https://sivochka.com';
-
-export function tutoringUrl(lang) {
-  return `${TUTORING_BASE}${lang === 'en' ? '' : `/${lang}`}/unity/`;
-}
-
 function esc(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -63,7 +57,6 @@ export function renderRequirementsHtml(lang, dict) {
       <div class="bento-card">
         <div class="section-head"><h2 id="learn-heading">${esc(r.learnTitle)}</h2></div>
         <div class="req-text">${learn}</div>
-        <div class="seo-eco-links"><a href="${tutoringUrl(lang)}" data-goatcounter-click="canirun-hub">${esc(r.learnLink)}</a></div>
       </div>
     </div>`;
 }

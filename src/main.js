@@ -140,9 +140,6 @@ function applyTranslations() {
     btn.classList.toggle('is-active', btn.dataset.lang === state.lang);
   });
 
-  const tutorPrefix = state.lang === 'en' ? '' : `/${state.lang}`;
-  $('mentor-link').href = `https://sivochka.com${tutorPrefix}/`;
-
   // SEO Bento Cards & Reference Table
   $('seo-bento-grid').innerHTML = dict.seoCards
     .map((c) => `<article class="seo-card"><h3>${c.title}</h3><p>${c.body}</p></article>`)
