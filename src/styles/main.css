@@ -1327,6 +1327,30 @@ th {
   transform: translateY(-1px);
 }
 
+/* ── STATIC REQUIREMENTS / HOW IT WORKS / LEARNERS (crawlable text) ── */
+.req-caption {
+  text-align: left;
+  padding: 0 0 8px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.req-notes {
+  margin: 14px 0 0;
+  padding-left: 1.2em;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.req-notes li + li { margin-top: 6px; }
+
+.req-text {
+  color: var(--text-secondary);
+  max-width: 78ch;
+}
+
+.req-text p { margin: 0 0 10px; }
+
 /* ── FOOTER & TOAST ───────────────────────────────────────── */
 .site-footer {
   max-width: 1180px;

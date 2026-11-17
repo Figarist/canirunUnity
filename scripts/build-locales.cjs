@@ -24,11 +24,20 @@ function injectFaqJsonLd(html, faqItems) {
 async function run() {
   const translationsUrl = pathToFileURL(path.resolve(__dirname, '..', 'src', 'i18n', 'translations.js')).href;
   const { TRANSLATIONS } = await import(translationsUrl);
+  const { renderRequirementsHtml } = await import(
+    pathToFileURL(path.resolve(__dirname, '..', 'src', 'content', 'static-requirements.js')).href
+  );
 
   const rawBaseHtml = fs.readFileSync(baseHtmlPath, 'utf8');
 
-  // Inject EN 10-question FAQPage into root dist/index.html
-  const enHtml = injectFaqJsonLd(rawBaseHtml, TRANSLATIONS.en.faqItems);
+  const REQ_MARKER = '<!--STATIC_REQUIREMENTS-->';
+  const injectRequirements = (html, lang) => {
+    if (!html.includes(REQ_MARKER)) throw new Error('Missing STATIC_REQUIREMENTS marker in dist/index.html');
+    return html.replace(REQ_MARKER, () => renderRequirementsHtml(lang, TRANSLATIONS[lang]));
+  };
+
+  // Inject EN FAQPage + static requirements section into root dist/index.html
+  const enHtml = injectRequirements(injectFaqJsonLd(rawBaseHtml, TRANSLATIONS.en.faqItems), 'en');
   fs.writeFileSync(baseHtmlPath, enHtml, 'utf8');
 
   const LOCALES = {
@@ -39,7 +48,7 @@ async function run() {
 
   for (const [lang, meta] of Object.entries(LOCALES)) {
     const dict = TRANSLATIONS[lang];
-    let html = injectFaqJsonLd(rawBaseHtml, dict.faqItems);
+    let html = injectRequirements(injectFaqJsonLd(rawBaseHtml, dict.faqItems), lang);
     html = html.replace(/<html lang="en"/, `<html lang="${lang}"`);
     html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeAttr(dict.metaTitle)}</title>`);
     html = html.replace(
@@ -120,7 +129,7 @@ ${hreflangs}
 `;
 
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap, 'utf8');
-  console.log('Generated 4 localized HTML routes (en, uk, ru, ko) with 10-item FAQPage JSON-LD and sitemap.xml');
+  console.log('Generated 4 localized HTML routes (en, uk, ru, ko) with 12-item FAQPage JSON-LD, static requirements section and sitemap.xml');
 }
 
 run().catch((err) => {

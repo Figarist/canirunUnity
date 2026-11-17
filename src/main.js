@@ -2,6 +2,7 @@ import { CPUS, DISKS, GPUS, IDES, OS_LIST, PRESETS } from './data/hardware-db.js
 import { detectHardware, runStressBenchmark } from './engine/detector.js';
 import { evaluateSpec } from './engine/evaluator.js';
 import { TRANSLATIONS } from './i18n/translations.js';
+import { renderRequirementsHtml } from './content/static-requirements.js';
 
 const SUPPORTED_LANGS = ['en', 'uk', 'ru', 'ko'];
 const RING_CIRCUMFERENCE = 207.35;
@@ -153,7 +154,7 @@ function applyTranslations() {
     .map((row) => `<tr>${row.map((cell, i) => (i === 0 ? `<td><strong>${cell}</strong></td>` : `<td>${cell}</td>`)).join('')}</tr>`)
     .join('');
 
-  // 10-Item FAQ
+  // 12-Item FAQ
   $('faq-list').innerHTML = dict.faqItems
     .map(
       (item, idx) => `
@@ -163,6 +164,10 @@ function applyTranslations() {
       </details>`
     )
     .join('');
+
+  // Static requirements / how-it-works / learners block (same markup that is pre-rendered at build time)
+  const reqRoot = $('requirements');
+  if (reqRoot) reqRoot.innerHTML = renderRequirementsHtml(state.lang, dict);
 }
 
 function statusMeta(status) {

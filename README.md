@@ -18,7 +18,7 @@ Modeled after `canirun.ai` and styled in the **Cloud Dancer Bento** design syste
 - **30+ Target Compatibility Matrix**: Filterable across `Unity Versions`, `Render & Lightmap`, `Packages & XR`, `AI & Local LLM`, and `IDEs & Tools` (including running `Qwen-Coder 3B–32B` alongside an open Unity Editor + IDE).
 - **Dual RAM & VRAM Budget Bars + Upgrade Simulator**: Visualizes `OS + Unity + IDE` memory headroom and simulates score deltas (`+Δ pts`) for RAM, NVMe SSD, and GPU upgrades.
 - **Unity Doctor & Mentor Report**: Generates tailored Editor optimization tips and copies a clean spec summary for Info or [1-on-1 tutoring](https://sivochka.com/).
-- **4-Language SEO & PWA**: Static localized HTML routes (`/`, `/uk/`, `/ru/`, `/ko/`) with `hreflang`, `sitemap.xml`, `Schema.org @graph` (`WebApplication` + `10-question FAQPage` + `BreadcrumbList`), GoatCounter analytics, and offline Service Worker.
+- **4-Language SEO & PWA**: Static localized HTML routes (`/`, `/uk/`, `/ru/`, `/ko/`) with `hreflang`, `sitemap.xml`, `Schema.org @graph` (`WebApplication` + `12-question FAQPage`, a static crawlable requirements section + `BreadcrumbList`), GoatCounter analytics, and offline Service Worker.
 
 ---
 

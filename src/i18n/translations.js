@@ -1,8 +1,8 @@
 export const TRANSLATIONS = {
   en: {
     langName: 'English',
-    metaTitle: 'Can I Run Unity? — Hardware Compatibility, FPS & Local AI Checker | Figarist',
-    metaDesc: 'Free in-browser hardware checker for Unity 6, 2022 LTS, URP, HDRP, VR/XR, Sentis AI, and local coding LLMs alongside Unity Editor. Auto-detects GPU, CPU & RAM locally.',
+    metaTitle: 'Can I Run Unity? PC System Requirements Checker',
+    metaDesc: 'Free Unity system requirements checker: see if your PC can run Unity 6, URP, HDRP, VR and local AI. Detects GPU, CPU and RAM in your browser.',
     metaKeywords: 'can i run unity, unity 6 system requirements, unity pc checker, unity urp hdrp hardware, unity vr requirements, unity sentis gpu, local llm unity rider, figarist, sivochka',
     navWorkflows: 'Workflows',
     navMatrix: 'Matrix',
@@ -183,15 +183,59 @@ export const TRANSLATIONS = {
       {
         q: 'How can I use the Mentor Report if I want to start learning Unity & C#?',
         a: 'Click "Copy Mentor Report" in the telemetry card and send it via Info or when booking 1-on-1 tutoring at sivochka.com/. It summarizes your OS, CPU, GPU, RAM, score, and ideal starter Unity version.'
+      },
+      {
+        q: 'What are the minimum system requirements for Unity 6?',
+        a: 'Unity publishes its own official requirements, so check the Unity documentation for those. This checker uses its own thresholds: for Unity 6.0 LTS it expects at least 8 GB RAM, 2 GB VRAM and GPU tier 2 of 10, and recommends 16 GB RAM, 4 GB VRAM and GPU tier 5 for a smooth Scene View.'
+      },
+      {
+        q: 'Do I need a gaming PC to learn Unity?',
+        a: 'Not for 2D projects. In this checker the 2D and School / Starter workflows ask for only 8 GB RAM, 1 GB VRAM and an entry-level GPU, so an ordinary school laptop is a fine start. Stronger hardware matters for heavy 3D, HDRP, VR and local AI.'
       }
     ],
+    // Static, crawlable requirements section. Table numbers come from src/data/unity-targets.js (see src/content/static-requirements.js).
+    reqSection: {
+      title: 'Unity system requirements',
+      intro: 'Can your PC run Unity? The checker scores your hardware against seven Unity workflows, from 2D and school projects to HDRP, VR and local AI. This table is generated from the same data the tool uses.',
+      caption: 'Minimum / recommended per workflow. CPU and GPU are tool tiers from 1 to 10.',
+      cols: [
+        'Workflow',
+        'RAM (min / rec)',
+        'VRAM (min / rec)',
+        'CPU tier',
+        'GPU tier',
+        'Fast SSD'
+      ],
+      ssdYes: 'NVMe preferred',
+      ssdNo: 'Not required',
+      notes: [
+        'Graphics API and GPU: the checker reads your graphics card through WebGL2 and, where supported, WebGPU. Some targets add hard conditions: hardware ray tracing needs an RT-capable GPU and DirectX 12 (Windows only), and Sentis flags GPUs without FP16 support.',
+        'CPU: shown as a tier from 1 to 10 (tier: cores, {cpuTiers}).',
+        'GPU: tier 1 is a software renderer and tier 10 is a flagship RTX card. VRAM is scored separately from the GPU tier.',
+        'RAM and disk: the RAM budget includes the OS and your code editor, so Rider needs more headroom than VS Code. A hard drive (HDD) lowers the score for targets that prefer NVMe.',
+        'Phones, tablets and ChromeOS cannot run the Unity Editor, and the checker reports that as "cannot run".'
+      ],
+      howTitle: 'How the check works',
+      howBody: [
+        'The check runs locally in your browser. On load it reads your graphics card name from WebGL2 (and WebGPU where available), your CPU thread count and the memory your browser reports, then matches them against a built-in hardware table and scores each Unity workflow on the spot.',
+        'Your hardware details are not uploaded. Browsers cap reported memory at 8 GB, so the tool infers RAM from your GPU and lets you correct RAM, VRAM, storage and editor by hand. The optional 3-second stress test also runs entirely on your device.',
+        'The page uses GoatCounter for anonymous visit and click statistics; your detected hardware is not part of them.'
+      ],
+      learnTitle: 'Learning Unity: do you need a gaming PC?',
+      learnBody: [
+        'For 2D projects, usually not. In this checker the 2D and School / Starter workflows have the lowest bar: from {ram} GB RAM, {vram} GB VRAM and GPU tier {gpu}, with no NVMe drive required. A child learning Unity and C# can start on an ordinary school laptop or an older PC.',
+        'Heavy 3D, HDRP, VR and local AI are where stronger hardware starts to matter. Run the check first, then choose a project that fits the result.',
+        'Parents and learners can get help choosing a Unity version and a first project in 1-on-1 Unity lessons.'
+      ],
+      learnLink: '1-on-1 Unity tutoring'
+    },
     reportTemplate: 'Can I Run Unity? Hardware Report\nScore: {score}/100 (Grade {grade})\nOS: {os} | CPU: {cpu} | GPU: {gpu} ({vram} GB VRAM)\nRAM: {ram} GB | Storage: {disk} | IDE: {ide}\nBest Match: {bestWf} ({bestVer})'
   },
 
   uk: {
     langName: 'Українська',
-    metaTitle: 'Can I Run Unity? — Перевірка ПК для Unity 6, URP, HDRP, VR та локального AI | Figarist',
-    metaDesc: 'Безкоштовна онлайн-перевірка сумісності ПК та ноутбука з Unity 6, 2022 LTS, URP/HDRP, VR/XR, Sentis та локальними LLM. Автодетект GPU, CPU та RAM у браузері.',
+    metaTitle: 'Can I Run Unity? Системні вимоги Unity 6 і перевірка ПК',
+    metaDesc: 'Безкоштовна перевірка: чи потягне ваш ПК Unity 6, URP, HDRP, VR та локальний AI. Системні вимоги Unity, автодетект GPU, CPU і RAM у браузері.',
     metaKeywords: 'чи потягне пк unity, системні вимоги unity 6, перевірка пк для юніті, unity urp hdrp вимоги, unity vr вимоги, unity sentis локальний ai, sivochka, figarist',
     navWorkflows: 'Сценарії',
     navMatrix: 'Матриця',
@@ -372,15 +416,58 @@ export const TRANSLATIONS = {
       {
         q: 'Як використати "Звіт для ментора" перед стартом навчання Unity та C#?',
         a: 'Натисніть кнопку «Звіт для ментора / Info» у картці результату та надішліть скопійований текст при записі на індивідуальні заняття на sivochka.com/. Це допоможе миттєво підібрати правильну версію Unity та формат занять під ваш ПК.'
+      },
+      {
+        q: 'Які мінімальні системні вимоги Unity 6?',
+        a: 'Офіційні вимоги публікує сама Unity, тому дивіться їх у документації Unity. Ця перевірка використовує власні пороги: для Unity 6.0 LTS вона очікує щонайменше 8 ГБ RAM, 2 ГБ VRAM і GPU рівня 2 з 10, а для плавного Scene View радить 16 ГБ RAM, 4 ГБ VRAM і GPU рівня 5.'
+      },
+      {
+        q: 'Чи потрібен ігровий ПК, щоб вчити Unity?',
+        a: 'Для 2D-проєктів ні. У цій перевірці сценарії 2D та «Школа / Навчання» вимагають лише 8 ГБ RAM, 1 ГБ VRAM і відеокарту початкового рівня, тож звичайний шкільний ноутбук — хороший старт. Потужніше залізо важливе для важкого 3D, HDRP, VR і локального AI.'
       }
     ],
+    reqSection: {
+      title: 'Системні вимоги Unity',
+      intro: 'Чи потягне ваш комп’ютер Unity? Перевірка оцінює залізо за сімома сценаріями Unity: від 2D і шкільних проєктів до HDRP, VR та локального AI. Ця таблиця генерується з тих самих даних, що використовує сам інструмент.',
+      caption: 'Мінімум / рекомендовано для кожного сценарію. CPU і GPU — рівні інструмента від 1 до 10.',
+      cols: [
+        'Сценарій',
+        'RAM (мін / рек)',
+        'VRAM (мін / рек)',
+        'Рівень CPU',
+        'Рівень GPU',
+        'Швидкий SSD'
+      ],
+      ssdYes: 'Бажано NVMe',
+      ssdNo: 'Не обов’язково',
+      notes: [
+        'Графічний API та GPU: інструмент читає відеокарту через WebGL2 і, якщо доступно, WebGPU. Деякі цілі мають жорсткі умови: апаратне трасування променів потребує GPU з підтримкою RT і DirectX 12 (лише Windows), а Sentis позначає GPU без підтримки FP16.',
+        'CPU: показується як рівень від 1 до 10 (рівень: ядра, {cpuTiers}).',
+        'GPU: рівень 1 — програмний рендерер, рівень 10 — флагманська RTX. VRAM оцінюється окремо від рівня GPU.',
+        'RAM і диск: бюджет RAM враховує ОС і редактор коду, тому для Rider потрібен більший запас, ніж для VS Code. Жорсткий диск (HDD) знижує оцінку для цілей, яким потрібен NVMe.',
+        'Телефони, планшети та ChromeOS не запускають редактор Unity, і перевірка показує це як «не запуститься».'
+      ],
+      howTitle: 'Як працює перевірка',
+      howBody: [
+        'Перевірка виконується локально у вашому браузері. Після завантаження сторінка зчитує назву відеокарти через WebGL2 (і WebGPU, якщо він доступний), кількість потоків CPU та обсяг пам’яті, який повідомляє браузер, зіставляє їх із вбудованою таблицею заліза й одразу оцінює кожен сценарій Unity.',
+        'Дані про ваше залізо нікуди не надсилаються. Браузери обмежують повідомлену пам’ять до 8 ГБ, тому інструмент оцінює RAM за відеокартою, а RAM, VRAM, диск і редактор можна виправити вручну. Необов’язковий 3-секундний стрес-тест також виконується лише на вашому пристрої.',
+        'Сторінка використовує GoatCounter для анонімної статистики відвідувань і кліків; виявлене залізо до неї не потрапляє.'
+      ],
+      learnTitle: 'Навчання Unity: чи потрібен ігровий ПК?',
+      learnBody: [
+        'Для 2D-проєктів зазвичай ні. У цій перевірці сценарії 2D та «Школа / Навчання» мають найнижчу планку: від {ram} ГБ RAM, {vram} ГБ VRAM і GPU рівня {gpu}, без обов’язкового NVMe. Дитина, яка вчить Unity і C#, може почати на звичайному шкільному ноутбуці чи старішому ПК.',
+        'Важке 3D, HDRP, VR та локальний AI — це там, де потужніше залізо справді важливе. Спершу запустіть перевірку, а потім оберіть проєкт, що підходить до результату.',
+        'Батьки та учні можуть отримати допомогу з вибором версії Unity і першого проєкту на індивідуальних уроках Unity.'
+      ],
+      learnLink: 'Індивідуальні уроки Unity'
+    },
     reportTemplate: 'Звіт ПК для Unity (Can I Run Unity?)\nОцінка: {score}/100 (Рівень {grade})\nОС: {os} | CPU: {cpu} | GPU: {gpu} ({vram} ГБ VRAM)\nRAM: {ram} ГБ | Диск: {disk} | IDE: {ide}\nНайкраще підходить: {bestWf} ({bestVer})'
   },
 
   ru: {
     langName: 'Русский',
-    metaTitle: 'Can I Run Unity? — Проверка ПК для Unity 6, URP, HDRP, VR и локального AI | Figarist',
-    metaDesc: 'Бесплатная онлайн-проверка совместимости ПК и ноутбука с Unity 6, 2022 LTS, URP/HDRP, VR/XR, Sentis и локальными LLM. Автодетект GPU, CPU и RAM в браузере.',
+    metaTitle: 'Can I Run Unity? Системные требования Unity 6 и проверка ПК',
+    metaDesc: 'Бесплатная проверка: потянет ли ваш ПК Unity 6, URP, HDRP, VR и локальный AI. Системные требования Unity, автодетект GPU, CPU и RAM в браузере.',
     metaKeywords: 'потянет ли пк unity, системные требования unity 6, проверка пк для юнити, unity urp hdrp требования, unity vr требования, локальный ai unity, sivochka, figarist',
     navWorkflows: 'Сценарии',
     navMatrix: 'Матрица',
@@ -561,15 +648,58 @@ export const TRANSLATIONS = {
       {
         q: 'Как использовать "Отчёт для ментора" перед началом обучения Unity и C#?',
         a: 'Нажмите «Отчёт для ментора / Info» и отправьте скопированный текст при записи на занятия 1-на-1 на sivochka.com/ — это поможет сразу подобрать оптимальную версию Unity.'
+      },
+      {
+        q: 'Каковы минимальные системные требования Unity 6?',
+        a: 'Официальные требования публикует сама Unity, поэтому смотрите их в документации Unity. Эта проверка использует собственные пороги: для Unity 6.0 LTS она ожидает не менее 8 ГБ RAM, 2 ГБ VRAM и GPU уровня 2 из 10, а для плавного Scene View рекомендует 16 ГБ RAM, 4 ГБ VRAM и GPU уровня 5.'
+      },
+      {
+        q: 'Нужен ли игровой ПК, чтобы учить Unity?',
+        a: 'Для 2D-проектов нет. В этой проверке сценарии 2D и «Школа / Обучение» требуют всего 8 ГБ RAM, 1 ГБ VRAM и видеокарту начального уровня, так что обычный школьный ноутбук — хороший старт. Более мощное железо важно для тяжёлого 3D, HDRP, VR и локального AI.'
       }
     ],
+    reqSection: {
+      title: 'Системные требования Unity',
+      intro: 'Потянет ли ваш компьютер Unity? Проверка оценивает железо по семи сценариям Unity: от 2D и школьных проектов до HDRP, VR и локального AI. Эта таблица генерируется из тех же данных, которые использует сам инструмент.',
+      caption: 'Минимум / рекомендовано для каждого сценария. CPU и GPU — уровни инструмента от 1 до 10.',
+      cols: [
+        'Сценарий',
+        'RAM (мин / рек)',
+        'VRAM (мин / рек)',
+        'Уровень CPU',
+        'Уровень GPU',
+        'Быстрый SSD'
+      ],
+      ssdYes: 'Желателен NVMe',
+      ssdNo: 'Не обязателен',
+      notes: [
+        'Графический API и GPU: инструмент читает видеокарту через WebGL2 и, если доступно, WebGPU. У некоторых целей есть жёсткие условия: аппаратная трассировка лучей требует GPU с поддержкой RT и DirectX 12 (только Windows), а Sentis отмечает GPU без поддержки FP16.',
+        'CPU: показывается как уровень от 1 до 10 (уровень: ядра, {cpuTiers}).',
+        'GPU: уровень 1 — программный рендерер, уровень 10 — флагманская RTX. VRAM оценивается отдельно от уровня GPU.',
+        'RAM и диск: бюджет RAM учитывает ОС и редактор кода, поэтому для Rider нужен больший запас, чем для VS Code. Жёсткий диск (HDD) снижает оценку для целей, которым желателен NVMe.',
+        'Телефоны, планшеты и ChromeOS не запускают редактор Unity, и проверка показывает это как «не запустится».'
+      ],
+      howTitle: 'Как работает проверка',
+      howBody: [
+        'Проверка выполняется локально в вашем браузере. После загрузки страница считывает название видеокарты через WebGL2 (и WebGPU, если он доступен), число потоков CPU и объём памяти, который сообщает браузер, сопоставляет их со встроенной таблицей железа и сразу оценивает каждый сценарий Unity.',
+        'Данные о вашем железе никуда не отправляются. Браузеры ограничивают сообщаемую память до 8 ГБ, поэтому инструмент оценивает RAM по видеокарте, а RAM, VRAM, диск и редактор можно поправить вручную. Необязательный 3-секундный стресс-тест тоже выполняется только на вашем устройстве.',
+        'Страница использует GoatCounter для анонимной статистики посещений и кликов; обнаруженное железо в неё не попадает.'
+      ],
+      learnTitle: 'Изучение Unity: нужен ли игровой ПК?',
+      learnBody: [
+        'Для 2D-проектов обычно нет. В этой проверке сценарии 2D и «Школа / Обучение» имеют самую низкую планку: от {ram} ГБ RAM, {vram} ГБ VRAM и GPU уровня {gpu}, без обязательного NVMe. Ребёнок, который учит Unity и C#, может начать на обычном школьном ноутбуке или старом ПК.',
+        'Тяжёлое 3D, HDRP, VR и локальный AI — это то, где более мощное железо действительно важно. Сначала запустите проверку, а затем выберите проект, подходящий под результат.',
+        'Родители и ученики могут получить помощь с выбором версии Unity и первого проекта на индивидуальных уроках Unity.'
+      ],
+      learnLink: 'Индивидуальные уроки Unity'
+    },
     reportTemplate: 'Отчёт ПК для Unity (Can I Run Unity?)\nОценка: {score}/100 (Уровень {grade})\nОС: {os} | CPU: {cpu} | GPU: {gpu} ({vram} ГБ VRAM)\nRAM: {ram} ГБ | Диск: {disk} | IDE: {ide}\nЛучший выбор: {bestWf} ({bestVer})'
   },
 
   ko: {
     langName: '한국어',
-    metaTitle: 'Can I Run Unity? — Unity 6, URP, HDRP, VR 및 로컬 AI 사양 검사기 | Figarist',
-    metaDesc: 'Unity 6, 2022 LTS, URP/HDRP, VR/XR, Sentis 및 로컬 코딩 LLM의 실행 가능 여부를 브라우저에서 즉시 확인하세요. GPU, CPU, RAM 자동 감지 지원.',
+    metaTitle: 'Can I Run Unity? 유니티 6 권장 사양·요구 사양 검사기',
+    metaDesc: '내 PC에서 Unity 6, URP, HDRP, VR, 로컬 AI가 돌아갈까요? 무료 Unity 시스템 요구 사양 검사기로 GPU, CPU, RAM을 브라우저에서 자동 감지해 확인하세요. 하드웨어 정보는 서버로 업로드되지 않습니다.',
     metaKeywords: '유니티 사양, unity 6 권장사양, unity pc 호환성, unity urp hdrp 사양, unity vr 사양, 로컬 llm unity, sivochka, figarist',
     navWorkflows: '워크플로',
     navMatrix: '전체 매트릭스',
@@ -750,8 +880,51 @@ export const TRANSLATIONS = {
       {
         q: 'Unity & C# 학습을 시작할 때 멘토 리포트를 어떻게 활용하나요?',
         a: '상단 카드의 "멘토용 리포트 복사" 버튼을 눌러 복사한 뒤 sivochka.com/ 상담 시 전달하면 PC에 딱 맞는 Unity 버전과 첫 프로젝트를 추천해 드립니다.'
+      },
+      {
+        q: 'Unity 6의 최소 시스템 요구 사양은 무엇인가요?',
+        a: '공식 요구 사양은 Unity가 직접 공개하므로 Unity 문서를 확인하세요. 이 검사기는 자체 기준을 사용합니다. Unity 6.0 LTS는 RAM 8GB, VRAM 2GB, GPU 등급 2/10 이상을 요구하고, 쾌적한 Scene View를 위해 RAM 16GB, VRAM 4GB, GPU 등급 5를 권장합니다.'
+      },
+      {
+        q: 'Unity를 배우려면 게이밍 PC가 꼭 필요한가요?',
+        a: '2D 프로젝트라면 필요하지 않습니다. 이 검사기에서 2D 및 학교/입문용 작업은 RAM 8GB, VRAM 1GB, 보급형 GPU만 요구하므로 일반 학교용 노트북으로도 충분히 시작할 수 있습니다. 고사양 3D, HDRP, VR, 로컬 AI에서는 더 강한 하드웨어가 중요합니다.'
       }
     ],
+    reqSection: {
+      title: 'Unity 시스템 요구 사양',
+      intro: '내 PC에서 Unity가 돌아갈까요? 이 검사기는 2D와 학교 수업용 프로젝트부터 HDRP, VR, 로컬 AI까지 Unity 작업 유형 7가지를 기준으로 하드웨어를 평가합니다. 아래 표는 도구가 실제로 사용하는 데이터에서 그대로 생성됩니다.',
+      caption: '작업 유형별 최소 / 권장 사양입니다. CPU와 GPU는 도구가 사용하는 1~10 등급입니다.',
+      cols: [
+        '작업 유형',
+        'RAM (최소 / 권장)',
+        'VRAM (최소 / 권장)',
+        'CPU 등급',
+        'GPU 등급',
+        '빠른 SSD'
+      ],
+      ssdYes: 'NVMe 권장',
+      ssdNo: '필수 아님',
+      notes: [
+        '그래픽 API와 GPU: 검사기는 WebGL2와, 지원되는 경우 WebGPU로 그래픽카드를 읽습니다. 일부 항목에는 필수 조건이 있습니다. 하드웨어 레이 트레이싱은 RT 지원 GPU와 DirectX 12(Windows 전용)가 필요하고, Sentis는 FP16을 지원하지 않는 GPU를 경고합니다.',
+        'CPU: 1~10 등급으로 표시됩니다 (등급: 코어 수, {cpuTiers}).',
+        'GPU: 1등급은 소프트웨어 렌더러, 10등급은 플래그십 RTX 카드입니다. VRAM은 GPU 등급과 별도로 평가됩니다.',
+        'RAM과 디스크: RAM 예산에는 운영체제와 코드 에디터가 포함되므로 Rider는 VS Code보다 여유 메모리가 더 필요합니다. 하드디스크(HDD)는 NVMe를 권장하는 항목의 점수를 낮춥니다.',
+        '휴대폰, 태블릿, ChromeOS에서는 Unity 에디터를 실행할 수 없으며, 검사기는 이를 \'실행 불가\'로 표시합니다.'
+      ],
+      howTitle: '검사 방식',
+      howBody: [
+        '검사는 브라우저 안에서 로컬로 실행됩니다. 페이지가 열리면 WebGL2(가능하면 WebGPU)에서 그래픽카드 이름을, 브라우저에서 CPU 스레드 수와 보고된 메모리 용량을 읽고, 내장 하드웨어 표와 대조해 Unity 작업 유형별 점수를 바로 계산합니다.',
+        '하드웨어 정보는 업로드되지 않습니다. 브라우저는 보고되는 메모리를 8GB로 제한하므로 도구가 그래픽카드를 기준으로 RAM을 추정하며, RAM, VRAM, 저장장치, 에디터는 직접 수정할 수 있습니다. 선택 사항인 3초 스트레스 테스트도 전부 내 기기에서만 실행됩니다.',
+        '이 페이지는 익명 방문 및 클릭 통계에 GoatCounter를 사용하며, 감지된 하드웨어 정보는 여기에 포함되지 않습니다.'
+      ],
+      learnTitle: 'Unity 배우기: 게이밍 PC가 꼭 필요할까요?',
+      learnBody: [
+        '2D 프로젝트라면 보통 필요하지 않습니다. 이 검사기에서 2D 및 학교/입문용 작업은 기준이 가장 낮아 RAM {ram}GB, VRAM {vram}GB, GPU {gpu}등급부터 가능하며 NVMe도 필수가 아닙니다. Unity와 C#을 배우는 아이도 일반 학교용 노트북이나 오래된 PC에서 시작할 수 있습니다.',
+        '고사양 3D, HDRP, VR, 로컬 AI에서는 더 강한 하드웨어가 중요해집니다. 먼저 검사를 실행한 뒤 결과에 맞는 프로젝트를 고르세요.',
+        '학부모와 학습자는 1:1 Unity 수업에서 Unity 버전과 첫 프로젝트를 고르는 도움을 받을 수 있습니다.'
+      ],
+      learnLink: '1:1 Unity 수업'
+    },
     reportTemplate: 'Can I Run Unity? 하드웨어 리포트\n점수: {score}/100 ({grade} 등급)\nOS: {os} | CPU: {cpu} | GPU: {gpu} ({vram} GB VRAM)\nRAM: {ram} GB | 저장장치: {disk} | IDE: {ide}\n최적 워크플로: {bestWf} ({bestVer})'
   }
 };

@@ -62,11 +62,11 @@ async function run() {
 
   // 5. 4-Language dictionary key parity + 10 FAQ items
   const baseKeys = Object.keys(TRANSLATIONS.en).sort();
-  assert.equal(TRANSLATIONS.en.faqItems.length, 10, 'Expected 10 FAQ items in EN');
+  assert.equal(TRANSLATIONS.en.faqItems.length, 12, 'Expected 12 FAQ items in EN');
   for (const lang of ['uk', 'ru', 'ko']) {
     const langKeys = Object.keys(TRANSLATIONS[lang]).sort();
     assert.deepEqual(langKeys, baseKeys, `Top-level i18n keys mismatch for ${lang}`);
-    assert.equal(TRANSLATIONS[lang].faqItems.length, 10, `Expected 10 FAQ items in ${lang}`);
+    assert.equal(TRANSLATIONS[lang].faqItems.length, 12, `Expected 12 FAQ items in ${lang}`);
     assert.equal(TRANSLATIONS[lang].seoCards.length, 3, `Expected 3 SEO cards in ${lang}`);
     assert.equal(TRANSLATIONS[lang].seoTableRows.length, 4, `Expected 4 SEO table rows in ${lang}`);
     assert.deepEqual(
@@ -86,7 +86,50 @@ async function run() {
     );
   }
 
-  console.log('All regression tests passed (GPU parser, RAM heuristic, scoring, AI+Unity matrix, 4-lang parity, 10 FAQs).');
+  // 6. Static requirements section: i18n parity + table is generated from unity-targets data
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const { WORKFLOWS, MATRIX_TARGETS } = await import('../src/data/unity-targets.js');
+  const { renderRequirementsHtml, tutoringUrl } = await import('../src/content/static-requirements.js');
+  const reqKeys = Object.keys(TRANSLATIONS.en.reqSection).sort();
+  for (const lang of ['en', 'uk', 'ru', 'ko']) {
+    const rs = TRANSLATIONS[lang].reqSection;
+    assert.deepEqual(Object.keys(rs).sort(), reqKeys, `reqSection keys mismatch for ${lang}`);
+    assert.equal(rs.cols.length, 6, `reqSection.cols length for ${lang}`);
+    assert.equal(rs.notes.length, TRANSLATIONS.en.reqSection.notes.length, `reqSection.notes length for ${lang}`);
+    const html = renderRequirementsHtml(lang, TRANSLATIONS[lang]);
+    assert.ok(!/\{\w+\}/.test(html), `Unfilled placeholder in static requirements (${lang})`);
+    assert.equal((html.match(/<tr><td>/g) || []).length, WORKFLOWS.length, `Requirements table rows (${lang})`);
+    assert.ok(html.includes(`href="${tutoringUrl(lang)}" data-goatcounter-click="canirun-hub"`), `Tutoring link (${lang})`);
+    const t = TRANSLATIONS[lang];
+    assert.ok([...t.metaTitle].length <= 60, `metaTitle > 60 chars for ${lang}`);
+    assert.ok(t.metaTitle.startsWith('Can I Run Unity?'), `metaTitle must start with brand for ${lang}`);
+    const dl = [...t.metaDesc].length;
+    assert.ok(dl >= 120 && dl <= 155, `metaDesc length ${dl} out of 120-155 for ${lang}`);
+  }
+  assert.equal(tutoringUrl('en'), 'https://sivochka.com/');
+  assert.equal(tutoringUrl('ko'), 'https://sivochka.com/');
+
+  // New FAQ numbers must match the tool's own Unity 6.0 LTS target
+  const u6 = MATRIX_TARGETS.find((m) => m.id === 'unity-6-lts');
+  const faqU6 = TRANSLATIONS.en.faqItems.find((f) => f.q.includes('minimum system requirements for Unity 6')).a;
+  for (const frag of [`${u6.minRam} GB RAM`, `${u6.minVram} GB VRAM`, `tier ${u6.minGpu} of 10`, `${u6.recRam} GB RAM`, `${u6.recVram} GB VRAM`, `tier ${u6.recGpu}`]) {
+    assert.ok(faqU6.includes(frag), `Unity 6 FAQ out of sync with unity-targets.js: missing "${frag}"`);
+  }
+
+  // EN meta tags hard-coded in index.html must match the EN dictionary; og/twitter descriptions identical
+  const indexHtml = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
+  const decode = (v) => v.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
+  const metaVal = (re) => decode((indexHtml.match(re) || [])[1] || '');
+  assert.equal(decode((indexHtml.match(/<title>([^<]*)<\/title>/) || [])[1] || ''), TRANSLATIONS.en.metaTitle, 'index.html <title> out of sync');
+  assert.equal(metaVal(/<meta name="description" content="([^"]*)"/), TRANSLATIONS.en.metaDesc, 'index.html description out of sync');
+  assert.equal(metaVal(/<meta property="og:title" content="([^"]*)"/), TRANSLATIONS.en.metaTitle, 'og:title out of sync');
+  assert.equal(metaVal(/<meta name="twitter:title" content="([^"]*)"/), TRANSLATIONS.en.metaTitle, 'twitter:title out of sync');
+  assert.equal(metaVal(/<meta property="og:description" content="([^"]*)"/), TRANSLATIONS.en.metaDesc, 'og:description out of sync');
+  assert.equal(metaVal(/<meta name="twitter:description" content="([^"]*)"/), TRANSLATIONS.en.metaDesc, 'twitter:description out of sync');
+  assert.ok(indexHtml.includes('<!--STATIC_REQUIREMENTS-->'), 'index.html missing STATIC_REQUIREMENTS marker');
+
+  console.log('All regression tests passed (GPU parser, RAM heuristic, scoring, AI+Unity matrix, 4-lang parity, 12 FAQs, static requirements section, meta lengths).');
 }
 
 run().catch((err) => {
