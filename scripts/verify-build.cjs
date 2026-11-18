@@ -13,7 +13,8 @@ const requiredFiles = [
   'robots.txt',
   'manifest.json',
   'sw.js',
-  'favicon.svg'
+  'favicon.svg',
+  'social-card.png'
 ];
 
 for (const rel of requiredFiles) {
@@ -33,6 +34,13 @@ for (const rc of routeChecks) {
   assert.ok(html.includes(`<html lang="${rc.lang}"`), `${rc.file} missing lang="${rc.lang}"`);
   assert.ok(html.includes(rc.canonical), `${rc.file} missing canonical ${rc.canonical}`);
   assert.ok(html.includes('Whr2bJTggESM1pyCXLfqwodNQu6cNqk_XKdZ0ix2Tyk'), `${rc.file} missing GSC verification meta`);
+  const ogImg = (html.match(/<meta property="og:image" content="([^"]+)"/) || [])[1];
+  assert.equal(ogImg, 'https://sivochka.com/canirunUnity/social-card.png', `${rc.file} og:image wrong`);
+  assert.ok(html.includes('<meta name="twitter:image" content="' + ogImg + '"'), `${rc.file} twitter:image mismatch`);
+  assert.ok(html.includes('<meta property="og:image:width" content="1200"'), `${rc.file} missing og:image:width`);
+  assert.ok(html.includes('<meta property="og:image:height" content="630"'), `${rc.file} missing og:image:height`);
+  assert.ok(/<meta property="og:image:alt" content="[^"]+"/.test(html), `${rc.file} missing og:image:alt`);
+  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image"'), `${rc.file} missing twitter:card`);
   assert.ok(html.includes('figarist.goatcounter.com/count'), `${rc.file} missing GoatCounter`);
   assert.ok(html.includes('"@type": "WebApplication"'), `${rc.file} missing WebApplication JSON-LD`);
   assert.ok(html.includes('"@type": "FAQPage"'), `${rc.file} missing FAQPage JSON-LD`);

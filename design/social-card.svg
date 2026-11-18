@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e101c"/>
+      <stop offset="1" stop-color="#1a1e31"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b5e853"/>
+      <stop offset="1" stop-color="#4ecdc4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="12" fill="url(#bar)"/>
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+    <text x="80" y="120" font-size="30" font-weight="700" fill="#8a90b3" letter-spacing="4">UNITY PC REQUIREMENTS CHECKER</text>
+    <text x="80" y="285" font-size="124" font-weight="800" fill="#f2f0eb">Can I Run</text>
+    <text x="80" y="410" font-size="124" font-weight="800" fill="#b5e853">Unity?</text>
+    <text x="80" y="492" font-size="36" font-weight="500" fill="#bcc2dc">Unity 6 · URP · HDRP · VR · local AI</text>
+    <text x="80" y="540" font-size="36" font-weight="500" fill="#bcc2dc">Check your PC in the browser</text>
+    <text x="80" y="590" font-size="28" font-weight="600" fill="#4ecdc4">sivochka.com/canirunUnity</text>
+  </g>
+  <!-- readiness gauge -->
+  <g transform="translate(900 300)">
+    <circle r="170" fill="none" stroke="#2a2f4a" stroke-width="26"/>
+    <circle r="170" fill="none" stroke="#b5e853" stroke-width="26" stroke-linecap="round"
+            stroke-dasharray="750 1068" transform="rotate(-90)"/>
+    <text y="30" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="130" font-weight="800" fill="#f2f0eb">A</text>
+    <text y="82" text-anchor="middle" font-family="Menlo, monospace" font-size="26" fill="#8a90b3">84 / 100</text>
+  </g>
+</svg>

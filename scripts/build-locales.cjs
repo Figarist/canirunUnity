@@ -41,9 +41,9 @@ async function run() {
   fs.writeFileSync(baseHtmlPath, enHtml, 'utf8');
 
   const LOCALES = {
-    uk: { ogLocale: 'uk_UA', canonical: 'https://sivochka.com/canirunUnity/uk/' },
-    ru: { ogLocale: 'ru_RU', canonical: 'https://sivochka.com/canirunUnity/ru/' },
-    ko: { ogLocale: 'ko_KR', canonical: 'https://sivochka.com/canirunUnity/ko/' }
+    uk: { ogLocale: 'uk_UA', canonical: 'https://sivochka.com/canirunUnity/uk/', imageAlt: 'Can I Run Unity? — перевірка, чи потягне ваш ПК Unity 6, URP, HDRP, VR і локальний ШІ прямо в браузері' },
+    ru: { ogLocale: 'ru_RU', canonical: 'https://sivochka.com/canirunUnity/ru/', imageAlt: 'Can I Run Unity? — проверка, потянет ли ваш ПК Unity 6, URP, HDRP, VR и локальный ИИ прямо в браузере' },
+    ko: { ogLocale: 'ko_KR', canonical: 'https://sivochka.com/canirunUnity/ko/', imageAlt: 'Can I Run Unity? — 브라우저에서 내 PC가 Unity 6, URP, HDRP, VR, 로컬 AI를 실행할 수 있는지 확인' }
   };
 
   for (const [lang, meta] of Object.entries(LOCALES)) {
@@ -86,6 +86,15 @@ async function run() {
     html = html.replace(
       /<meta name="twitter:description" content="[^"]*"\s*\/?>/,
       `<meta name="twitter:description" content="${escapeAttr(dict.metaDesc)}" />`
+    );
+
+    html = html.replace(
+      /<meta property="og:image:alt" content="[^"]*"\s*\/?>/,
+      `<meta property="og:image:alt" content="${escapeAttr(meta.imageAlt)}" />`
+    );
+    html = html.replace(
+      /<meta name="twitter:image:alt" content="[^"]*"\s*\/?>/,
+      `<meta name="twitter:image:alt" content="${escapeAttr(meta.imageAlt)}" />`
     );
 
     // Fix relative favicon/manifest paths for nested /uk/, /ru/, /ko/ routes
