@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Can I Run Unity? Free Unity 6, HDRP, VR &amp; PC Specs Check</title>
+  <meta name="description" content="Can your PC run Unity 6—from Hollow Knight 2D to GTA 6-scale HDRP? Instant in-browser check for URP, VR, Scene FPS and local AI. No install." />
+  <meta name="keywords" content="can i run unity, unity 6 system requirements, unity pc checker, unity urp hdrp hardware, unity vr requirements, unity sentis gpu, local llm unity rider, figarist, sivochka" />
+  <meta name="author" content="Ihor Sivochka (Figarist)" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="google-site-verification" content="Whr2bJTggESM1pyCXLfqwodNQu6cNqk_XKdZ0ix2Tyk" />
+  <meta name="theme-color" content="#f2f0eb" />
+
+  <link rel="author" href="https://sivochka.com/" />
+  <link rel="canonical" href="https://sivochka.com/canirunUnity/" />
+  <link rel="alternate" hreflang="en" href="https://sivochka.com/canirunUnity/" />
+  <link rel="alternate" hreflang="uk" href="https://sivochka.com/canirunUnity/uk/" />
+  <link rel="alternate" hreflang="ru" href="https://sivochka.com/canirunUnity/ru/" />
+  <link rel="alternate" hreflang="ko" href="https://sivochka.com/canirunUnity/ko/" />
+  <link rel="alternate" hreflang="x-default" href="https://sivochka.com/canirunUnity/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="Figarist — Ihor Sivochka" />
+  <meta property="og:url" content="https://sivochka.com/canirunUnity/" />
+  <meta property="og:title" content="Can I Run Unity? Free Unity 6, HDRP, VR &amp; PC Specs Check" />
+  <meta property="og:description" content="Can your PC run Unity 6—from Hollow Knight 2D to GTA 6-scale HDRP? Instant in-browser check for URP, VR, Scene FPS and local AI. No install." />
+  <meta property="og:image" content="https://sivochka.com/canirunUnity/social-card.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Can I Run Unity? — In-browser hardware compatibility analyzer by Ihor Sivochka (Figarist)" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@figarist" />
+  <meta name="twitter:creator" content="@figarist" />
+  <meta name="twitter:title" content="Can I Run Unity? Free Unity 6, HDRP, VR &amp; PC Specs Check" />
+  <meta name="twitter:description" content="Can your PC run Unity 6—from Hollow Knight 2D to GTA 6-scale HDRP? Instant in-browser check for URP, VR, Scene FPS and local AI. No install." />
+  <meta name="twitter:image" content="https://sivochka.com/canirunUnity/social-card.png" />
+  <meta name="twitter:image:alt" content="Can I Run Unity? — In-browser hardware compatibility analyzer by Ihor Sivochka (Figarist)" />
+
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./favicon.svg" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./src/styles/main.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://sivochka.com/canirunUnity/#app",
+        "name": "Can I Run Unity?",
+        "alternateName": ["CanIRunUnity", "Unity PC Checker", "Чи потягне мій ПК Unity?"],
+        "url": "https://sivochka.com/canirunUnity/",
+        "image": "https://sivochka.com/canirunUnity/social-card.png",
+        "description": "Free in-browser hardware compatibility analyzer and performance estimator for Unity Engine 6, 2022 LTS, URP, HDRP, VR/XR, Sentis, and local coding LLMs.",
+        "applicationCategory": "DeveloperApplication",
+        "applicationSubCategory": "Game Engine Hardware Benchmark & Compatibility Checker",
+        "operatingSystem": "Windows, macOS, Linux, Web",
+        "browserRequirements": "Requires JavaScript and WebGL2 (optional WebGPU)",
+        "inLanguage": ["en", "uk", "ru", "ko"],
+        "isAccessibleForFree": true,
+        "featureList": [
+          "100% local WebGL2 & WebGPU GPU detection and CPU micro-benchmark",
+          "Smart RAM heuristic bypassing browser 8 GB deviceMemory privacy caps",
+          "0-100 Unity Readiness Score and S-F letter grade across 7 GameDev workflows",
+          "30+ filterable targets for Unity 6, 2022.3 LTS, URP, HDRP, OpenXR, Sentis, and Ollama Qwen-Coder LLMs",
+          "Upgrade path simulator, Unity Doctor optimization checklist, and 1-click Mentor Report copier"
+        ],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": {
+          "@type": "Person",
+          "@id": "https://sivochka.com#person",
+          "name": "Ihor Sivochka",
+          "alternateName": ["Ігор Сівочка", "Игорь Сивочка", "Figarist"],
+          "url": "https://sivochka.com/",
+          "sameAs": [
+            "https://sivochka.com/",
+            "https://github.com/Figarist/canirunUnity"
+          ]
+        },
+        "creator": { "@id": "https://sivochka.com#person" },
+        "isPartOf": {
+          "@type": "WebSite",
+          "@id": "https://sivochka.com#website",
+          "name": "Figarist — Ihor Sivochka",
+          "url": "https://sivochka.com/"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://sivochka.com/canirunUnity/#breadcrumb",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Figarist", "item": "https://sivochka.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Can I Run Unity?", "item": "https://sivochka.com/canirunUnity/" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://sivochka.com/canirunUnity/#faq",
+        "mainEntity": []
+      }
+    ]
+  }
+  </script>
+
+  <script data-goatcounter="/m/e" async src="/m/v1.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="app-header">
+    <div class="header-progress-container" aria-hidden="true">
+      <div id="header-progress-fill" class="header-progress-fill"></div>
+    </div>
+    <div class="header-inner">
+      <a class="brand-link" href="./">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L20 6.5V17.5L12 22L4 17.5V6.5L12 2Z" />
+            <path d="M12 22V12M12 12L20 6.5M12 12L4 6.5" />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="logo-title">Can I Run Unity?</span>
+          <span class="logo-sub">BY FIGARIST · SIVOCHKA.COM</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Section navigation">
+        <a href="#workflows" data-i18n="navWorkflows">Workflows</a>
+        <a href="#matrix" data-i18n="navMatrix">Matrix</a>
+        <a href="#upgrades" data-i18n="navUpgrades">Upgrades</a>
+        <a href="#doctor" data-i18n="navDoctor">Doctor</a>
+        <a href="#guide" data-i18n="navGuide">Guide &amp; FAQ</a>
+        <a href="https://sivochka.com/?ref=canirunUnity" target="_blank" rel="noopener" data-i18n="navHub">sivochka.com</a>
+      </nav>
+
+      <div class="nav-controls">
+        <span class="local-badge"><span class="status-dot" aria-hidden="true"></span><span data-i18n="localPill">100% LOCAL</span></span>
+        <div class="lang-switch" role="group" aria-label="Language switcher">
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="uk">UK</button>
+          <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="ko">KO</button>
+        </div>
+        <button type="button" id="btn-theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle Light / Dark"></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="shell">
+    <!-- ══════════════ EDITORIAL HERO SHELL ══════════════ -->
+    <section class="hero-shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div>
+          <p class="home-eyebrow"><span class="home-mark" aria-hidden="true">F</span><span data-i18n="heroKicker">LOCAL HARDWARE ANALYZER</span></p>
+          <h1 id="hero-title" data-i18n="heroTitle">Can I Run Unity?</h1>
+          <p class="hero-lead" data-i18n="heroLead"></p>
+
+          <div class="hero-facts">
+            <span class="fact-pill fact-pill--accent" data-i18n="factZero"></span>
+            <span class="fact-pill" data-i18n="factWebgl"></span>
+            <span class="fact-pill" data-i18n="factUnity"></span>
+            <span class="fact-pill" data-i18n="factAi"></span>
+          </div>
+
+          <div class="hero-actions">
+            <button type="button" id="btn-detect" class="btn btn--primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+              <span data-i18n="btnDetect">Re-Detect My PC</span>
+            </button>
+            <button type="button" id="btn-bench" class="btn btn--wasabi">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span data-i18n="btnBench">3s GPU/CPU Stress Test</span>
+            </button>
+          </div>
+          <div id="bench-status" class="bench-status" aria-live="polite"></div>
+        </div>
+
+        <div class="presets-block">
+          <span class="presets-label" data-i18n="presetsLabel">Quick Reference Rigs:</span>
+          <div class="preset-grid">
+            <button type="button" class="btn--preset-card" data-preset="school">
+              <span class="preset-card__icon-wrapper" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+              </span>
+              <span class="preset-card__details">
+                <span class="preset-card__title" data-i18n="presetSchool"></span>
+                <span class="preset-card__meta" data-i18n="presetSchoolMeta"></span>
+              </span>
+            </button>
+            <button type="button" class="btn--preset-card" data-preset="mac-m2">
+              <span class="preset-card__icon-wrapper" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+              </span>
+              <span class="preset-card__details">
+                <span class="preset-card__title" data-i18n="presetMac"></span>
+                <span class="preset-card__meta" data-i18n="presetMacMeta"></span>
+              </span>
+            </button>
+            <button type="button" class="btn--preset-card" data-preset="indie">
+              <span class="preset-card__icon-wrapper" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+              </span>
+              <span class="preset-card__details">
+                <span class="preset-card__title" data-i18n="presetIndie"></span>
+                <span class="preset-card__meta" data-i18n="presetIndieMeta"></span>
+              </span>
+            </button>
+            <button type="button" class="btn--preset-card" data-preset="pro">
+              <span class="preset-card__icon-wrapper" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </span>
+              <span class="preset-card__details">
+                <span class="preset-card__title" data-i18n="presetPro"></span>
+                <span class="preset-card__meta" data-i18n="presetProMeta"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="score-card" aria-label="Unity Telemetry Summary">
+        <div class="score-top">
+          <div class="gauge-wrap">
+            <div class="score-ring" aria-hidden="true">
+              <svg viewBox="0 0 80 80">
+                <circle class="score-ring__bg" cx="40" cy="40" r="33" />
+                <circle id="score-ring-circle" class="score-ring__fill" cx="40" cy="40" r="33" stroke-dasharray="207.35" stroke-dashoffset="207.35" />
+              </svg>
+              <div id="score-num" class="score-ring__num">0</div>
+            </div>
+            <div>
+              <span class="score-kicker" data-i18n="scoreTitle">Unity Readiness Score</span>
+              <div style="font-family:var(--font-mono);font-size:0.82rem;color:rgba(242,240,235,0.72);">/ 100 pts</div>
+            </div>
+          </div>
+          <div id="score-grade" class="grade-badge grade--B" aria-label="Grade">B</div>
+        </div>
+
+        <div id="verdict-box" class="verdict-box">
+          <span class="score-kicker" data-i18n="verdictLabel">Dev-to-Dev Verdict</span>
+          <strong id="verdict-headline">—</strong>
+          <small id="verdict-sub">—</small>
+        </div>
+
+        <div class="best-pick">
+          <span class="score-kicker" data-i18n="bestPickLabel">Best Match for Your PC</span>
+          <strong id="best-wf-name">—</strong>
+          <small id="best-wf-ver">—</small>
+        </div>
+
+        <div class="ram-budget">
+          <span class="score-kicker" data-i18n="ramBarTitle">System RAM Budget</span>
+          <div class="ram-bar" aria-hidden="true">
+            <div id="ram-seg-os" class="ram-seg--os" style="width: 20%"></div>
+            <div id="ram-seg-unity" class="ram-seg--unity" style="width: 25%"></div>
+            <div id="ram-seg-ide" class="ram-seg--ide" style="width: 15%"></div>
+          </div>
+          <div class="ram-meta">
+            <span id="ram-used-label">—</span>
+            <span id="ram-free-label">—</span>
+          </div>
+        </div>
+
+        <div class="ram-budget">
+          <span class="score-kicker" data-i18n="vramBarTitle">GPU VRAM Pool</span>
+          <div class="ram-bar" aria-hidden="true">
+            <div id="vram-seg-unity" class="ram-seg--vram" style="width: 30%"></div>
+          </div>
+          <div class="ram-meta">
+            <span id="vram-used-label">Unity URP ~2.5G</span>
+            <span id="vram-free-label">—</span>
+          </div>
+        </div>
+
+        <div class="score-actions">
+          <button type="button" id="btn-copy-link" class="btn btn--score-ghost">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span data-i18n="btnCopyLink"></span>
+          </button>
+          <button type="button" id="btn-copy-report" class="btn btn--score-accent">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span data-i18n="btnCopyReport"></span>
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ══════════════ TACTILE HARDWARE RACK ══════════════ -->
+    <section class="bento-card" aria-label="Hardware Specification Controls">
+      <div class="hardware-rack">
+        <div class="spec-grid">
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-os" data-i18n="specOs"></label>
+            </div>
+            <select id="sel-os"></select>
+          </div>
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-cpu" data-i18n="specCpu"></label>
+              <span id="val-cpu" class="control-val">—</span>
+            </div>
+            <select id="sel-cpu"></select>
+          </div>
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-gpu" data-i18n="specGpu"></label>
+              <span id="val-gpu" class="control-val">—</span>
+            </div>
+            <select id="sel-gpu"></select>
+          </div>
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-vram" data-i18n="specVram"></label>
+              <span id="val-vram" class="control-val">—</span>
+            </div>
+            <select id="sel-vram">
+              <option value="1">1 GB</option>
+              <option value="2">2 GB</option>
+              <option value="4">4 GB</option>
+              <option value="6">6 GB</option>
+              <option value="8">8 GB</option>
+              <option value="10">10 GB</option>
+              <option value="12">12 GB</option>
+              <option value="16">16 GB</option>
+              <option value="24">24 GB</option>
+              <option value="32">32 GB</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-ram" data-i18n="specRam"></label>
+              <span id="val-ram" class="control-val">—</span>
+            </div>
+            <select id="sel-ram">
+              <option value="4">4 GB</option>
+              <option value="8">8 GB</option>
+              <option value="12">12 GB</option>
+              <option value="16">16 GB</option>
+              <option value="24">24 GB</option>
+              <option value="32">32 GB</option>
+              <option value="64">64 GB</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-disk" data-i18n="specDisk"></label>
+            </div>
+            <select id="sel-disk"></select>
+          </div>
+          <div class="field">
+            <div class="control-header">
+              <label for="sel-ide" data-i18n="specIde"></label>
+            </div>
+            <select id="sel-ide"></select>
+          </div>
+        </div>
+
+        <div class="snap-row">
+          <span class="snap-label" data-i18n="snapRamLabel">Quick RAM:</span>
+          <button type="button" class="snap-btn" data-ram="4">4G</button>
+          <button type="button" class="snap-btn" data-ram="8">8G</button>
+          <button type="button" class="snap-btn" data-ram="12">12G</button>
+          <button type="button" class="snap-btn" data-ram="16">16G</button>
+          <button type="button" class="snap-btn" data-ram="24">24G</button>
+          <button type="button" class="snap-btn" data-ram="32">32G</button>
+          <button type="button" class="snap-btn" data-ram="64">64G</button>
+
+          <span class="snap-label" style="margin-left:10px;" data-i18n="snapVramLabel">Quick VRAM:</span>
+          <button type="button" class="snap-btn" data-vram="2">2G</button>
+          <button type="button" class="snap-btn" data-vram="4">4G</button>
+          <button type="button" class="snap-btn" data-vram="6">6G</button>
+          <button type="button" class="snap-btn" data-vram="8">8G</button>
+          <button type="button" class="snap-btn" data-vram="12">12G</button>
+          <button type="button" class="snap-btn" data-vram="16">16G</button>
+          <button type="button" class="snap-btn" data-vram="24">24G</button>
+        </div>
+
+        <div id="ram-cap-banner" class="ram-cap-banner" hidden>
+          <span id="ram-cap-text"></span>
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="snap-btn" data-ram="8">8 GB</button>
+            <button type="button" class="snap-btn" data-ram="16">16 GB</button>
+            <button type="button" class="snap-btn" data-ram="32">32 GB</button>
+            <button type="button" class="snap-btn" data-ram="64">64 GB</button>
+          </div>
+        </div>
+
+        <div class="detected-bar">
+          <span><strong data-i18n="detectedRaw"></strong> <code id="raw-gpu-text">—</code></span>
+          <span id="api-caps-text" style="font-family:var(--font-mono);"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ WORKFLOW CARDS ══════════════ -->
+    <section id="workflows" class="bento-card" aria-labelledby="wf-heading">
+      <div class="section-head">
+        <h2 id="wf-heading" data-i18n="workflowsTitle"></h2>
+        <p data-i18n="workflowsSub"></p>
+      </div>
+      <div id="workflow-grid" class="workflow-grid"></div>
+    </section>
+
+    <!-- ══════════════ BROWSE ALL MATRIX ══════════════ -->
+    <section id="matrix" class="bento-card" aria-labelledby="matrix-heading">
+      <div class="section-head">
+        <h2 id="matrix-heading" data-i18n="matrixTitle"></h2>
+        <p data-i18n="matrixSub"></p>
+      </div>
+
+      <div class="matrix-controls">
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab-btn is-active" data-cat="all" data-i18n="tabAll"></button>
+          <button type="button" class="tab-btn" data-cat="games" data-i18n="tabGames"></button>
+          <button type="button" class="tab-btn" data-cat="versions" data-i18n="tabVersions"></button>
+          <button type="button" class="tab-btn" data-cat="pipelines" data-i18n="tabPipelines"></button>
+          <button type="button" class="tab-btn" data-cat="packages" data-i18n="tabPackages"></button>
+          <button type="button" class="tab-btn" data-cat="ai" data-i18n="tabAi"></button>
+          <button type="button" class="tab-btn" data-cat="tools" data-i18n="tabTools"></button>
+        </div>
+        <div class="matrix-filters">
+          <input type="search" id="matrix-search" data-i18n-placeholder="searchPlaceholder" />
+          <select id="matrix-status-filter">
+            <option value="all" data-i18n="filterAllStatus"></option>
+            <option value="can-run" data-i18n="statusCanRun"></option>
+            <option value="can-run-slow" data-i18n="statusSlow"></option>
+            <option value="tight" data-i18n="statusTight"></option>
+            <option value="cannot-run" data-i18n="statusCannot"></option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="colTarget"></th>
+              <th data-i18n="colGrade"></th>
+              <th data-i18n="colStatus"></th>
+              <th data-i18n="colPerf"></th>
+              <th data-i18n="colNotes"></th>
+            </tr>
+          </thead>
+          <tbody id="matrix-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════ UPGRADES & DOCTOR MODE ══════════════ -->
+    <section class="two-col">
+      <div id="upgrades" class="bento-card" aria-labelledby="upg-heading">
+        <div class="section-head">
+          <h2 id="upg-heading" data-i18n="upgradesTitle"></h2>
+          <p data-i18n="upgradesSub"></p>
+        </div>
+        <ul id="upgrade-list" class="upgrade-list"></ul>
+      </div>
+
+      <div id="doctor" class="bento-card" aria-labelledby="doc-heading">
+        <div class="section-head">
+          <h2 id="doc-heading" data-i18n="doctorTitle"></h2>
+          <p data-i18n="doctorSub"></p>
+        </div>
+        <ul id="doctor-list" class="doctor-list"></ul>
+      </div>
+    </section>
+
+    <!-- ══════════════ STATIC SYSTEM REQUIREMENTS / HOW IT WORKS / LEARNERS ══════════════
+         Plain HTML for crawlers and no-JS visitors. scripts/build-locales.cjs replaces the marker below
+         with the localized block from src/content/static-requirements.js; main.js re-renders it on language switch. -->
+    <section id="requirements" aria-labelledby="req-heading">
+      <!--STATIC_REQUIREMENTS-->
+    </section>
+
+    <!-- ══════════════ ENGINEERING GUIDE, MATRIX & 12-ITEM FAQ ══════════════ -->
+    <section id="guide" class="seo-guide" aria-labelledby="seo-guide-title">
+      <header class="bento-card">
+        <p class="home-eyebrow" style="margin-bottom:6px;" data-i18n="seoKicker"></p>
+        <h2 id="seo-guide-title" style="margin:0 0 8px;font-size:clamp(1.25rem,2vw,1.6rem);" data-i18n="seoTitle"></h2>
+        <p style="margin:0;color:var(--text-secondary);max-width:78ch;" data-i18n="seoLead"></p>
+      </header>
+
+      <div id="seo-bento-grid" class="seo-bento-grid"></div>
+
+      <div class="seo-table-wrap">
+        <h3 id="seo-table-title" class="seo-table__title"></h3>
+        <table>
+          <thead id="seo-table-head"></thead>
+          <tbody id="seo-table-body"></tbody>
+        </table>
+      </div>
+
+      <section id="faq" class="bento-card" aria-labelledby="faq-heading">
+        <div class="section-head">
+          <h2 id="faq-heading" data-i18n="faqTitle"></h2>
+        </div>
+        <div id="faq-list" class="faq-list"></div>
+      </section>
+
+      <aside class="bento-card" aria-labelledby="eco-heading">
+        <h3 id="eco-heading" style="margin:0 0 6px;font-size:1.08rem;" data-i18n="seoEcoTitle"></h3>
+        <p style="margin:0;color:var(--text-secondary);font-size:0.9rem;" data-i18n="seoEcoLead"></p>
+        <div class="seo-eco-links">
+          <a href="https://sivochka.com/?ref=canirunUnity" target="_blank" rel="noopener">sivochka.com</a>
+          <a href="https://github.com/Figarist/canirunUnity" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span data-i18n="footerMade"></span>
+    <div class="footer-links">
+      <a href="https://sivochka.com/?ref=canirunUnity" target="_blank" rel="noopener">sivochka.com</a>
+      <a href="https://github.com/Figarist/canirunUnity" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
