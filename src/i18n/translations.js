@@ -1,8 +1,8 @@
 export const TRANSLATIONS = {
   en: {
     langName: 'English',
-    metaTitle: 'Can I Run Unity? Free Unity 6, HDRP, VR & PC Specs Check',
-    metaDesc: 'Can your PC run Unity 6—from Hollow Knight 2D to GTA 6-scale HDRP? Instant in-browser check for URP, VR, Scene FPS and local AI. No install.',
+    metaTitle: 'Can I Run Unity? Unity 6 System Requirements PC Check',
+    metaDesc: 'Check Unity 6 system requirements against your PC in seconds: GPU, CPU and RAM for 2D, URP, HDRP and VR, plus local AI. Free, in-browser, no install.',
     metaKeywords: 'can i run unity, unity 6 system requirements, unity pc checker, unity urp hdrp hardware, unity vr requirements, unity sentis gpu, local llm unity rider, figarist, sivochka',
     navWorkflows: 'Workflows',
     navMatrix: 'Matrix',
@@ -240,8 +240,8 @@ export const TRANSLATIONS = {
 
   uk: {
     langName: 'Українська',
-    metaTitle: 'Can I Run Unity? Перевірка ПК для Unity 6, HDRP, 3D і VR',
-    metaDesc: 'Чи потягне твій ПК Unity 6 — від Hollow Knight 2D до GTA 6-масштабу в HDRP? Миттєвий чек GPU, RAM, FPS і локального AI в браузері без інсталу.',
+    metaTitle: 'Can I Run Unity? Системні вимоги Unity 6: тест ПК',
+    metaDesc: 'Системні вимоги Unity 6 проти твого ПК за секунди: GPU, CPU і RAM для 2D, URP, HDRP та VR, плюс локальний AI. Безкоштовно, у браузері, без інсталу.',
     metaKeywords: 'чи потягне пк unity, системні вимоги unity 6, перевірка пк для юніті, unity urp hdrp вимоги, unity vr вимоги, unity sentis локальний ai, sivochka, figarist',
     navWorkflows: 'Сценарії',
     navMatrix: 'Матриця',
@@ -478,8 +478,8 @@ export const TRANSLATIONS = {
 
   ru: {
     langName: 'Русский',
-    metaTitle: 'Can I Run Unity? Проверка ПК для Unity 6, HDRP, 3D и VR',
-    metaDesc: 'Потянет ли твой ПК Unity 6 — от Hollow Knight 2D до GTA 6-масштаба в HDRP? Мгновенный чек GPU, RAM, FPS и локального AI в браузере без установки.',
+    metaTitle: 'Can I Run Unity? Системные требования Unity 6: тест ПК',
+    metaDesc: 'Системные требования Unity 6 против твоего ПК за секунды: GPU, CPU и RAM для 2D, URP, HDRP и VR, плюс локальный AI. Бесплатно, в браузере.',
     metaKeywords: 'потянет ли пк unity, системные требования unity 6, проверка пк для юнити, unity urp hdrp требования, unity vr требования, локальный ai unity, sivochka, figarist',
     navWorkflows: 'Сценарии',
     navMatrix: 'Матрица',
@@ -716,8 +716,8 @@ export const TRANSLATIONS = {
 
   ko: {
     langName: '한국어',
-    metaTitle: 'Can I Run Unity? 유니티 6, URP, HDRP, VR 내 PC 사양 테스트',
-    metaDesc: '내 PC에서 Unity 6가 돌아갈까? 할로우 나이트 2D부터 GTA 6급 HDRP, VR, 로컬 AI까지 GPU·CPU·RAM 사양을 브라우저에서 1초 만에 바로 확인하세요. 설치도 서버 전송도 없는 무료 유니티 호환성 검사기입니다.',
+    metaTitle: 'Can I Run Unity? Unity 6 시스템 요구 사항 PC 체크',
+    metaDesc: '내 PC가 Unity 6 시스템 요구 사항을 충족할까요? 2D, URP, HDRP, VR, 로컬 AI까지 GPU·CPU·RAM 사양을 브라우저에서 바로 확인하는 무료 유니티 검사기입니다. 설치도 서버 전송도 필요 없습니다.',
     metaKeywords: '유니티 사양, unity 6 권장사양, unity pc 호환성, unity urp hdrp 사양, unity vr 사양, 로컬 llm unity, sivochka, figarist',
     navWorkflows: '워크플로',
     navMatrix: '전체 매트릭스',
