@@ -32,6 +32,8 @@ function evaluateTarget(target, ctx) {
       status: 'cannot-run',
       estFps: '—',
       compileTime: '—',
+      subScores: { cpu: 10, gpu: 10, ram: 10, vram: 10 },
+      strengths: [],
       bottlenecks: ['os_not_desktop']
     };
   }
@@ -89,6 +91,17 @@ function evaluateTarget(target, ctx) {
   const score = Math.max(0, Math.min(100, Math.round(rawScore)));
   const grade = scoreToGrade(score);
 
+  const strengths = [];
+  if (ramGb >= target.recRam) strengths.push({ code: 'ram_ok', actual: ramGb, req: target.recRam });
+  else if (ramGb >= target.minRam) strengths.push({ code: 'ram_min_ok', actual: ramGb });
+  if (vramGb >= target.recVram) strengths.push({ code: 'vram_ok', actual: vramGb, req: target.recVram });
+  if (gpu.tier >= target.recGpu) strengths.push({ code: 'gpu_ok', actual: gpu.name });
+  if (cpu.tier >= target.recCpu) strengths.push({ code: 'cpu_ok', actual: cpu.cores });
+  if (disk.id === 'nvme') strengths.push('nvme_ok');
+  if (target.requiresRt && gpu.rt && osObj.dx12) strengths.push('rt_ok');
+  if (target.requiresFp16 && gpu.fp16) strengths.push('fp16_ok');
+  if (strengths.length === 0) strengths.push('os_desktop');
+
   let status = 'cannot-run';
   if (score >= 74) status = 'can-run';
   else if (score >= 54) status = 'can-run-slow';
@@ -108,6 +121,13 @@ function evaluateTarget(target, ctx) {
     status,
     estFps,
     compileTime,
+    subScores: {
+      cpu: Math.round(cpuPts),
+      gpu: Math.round(gpuPts),
+      ram: Math.round(ramPts),
+      vram: Math.round(vramPts)
+    },
+    strengths,
     bottlenecks
   };
 }
@@ -125,14 +145,19 @@ export function evaluateSpec(spec) {
 
   // Overall composite system score (weighted for Unity Editor reality)
   let systemScore = 0;
+  let ramComp = 12;
+  let gpuComp = 12;
+  let cpuComp = 12;
+  let vramComp = 12;
+  let diskComp = 12;
   if (!osObj.desktop) {
     systemScore = 12;
   } else {
-    const ramComp = Math.min(100, (ramGb / 32) * 100);
-    const gpuComp = Math.min(100, gpu.tier * 10);
-    const cpuComp = Math.min(100, cpu.tier * 10);
-    const vramComp = Math.min(100, (vramGb / 12) * 100);
-    const diskComp = disk.factor * 100;
+    ramComp = Math.min(100, (ramGb / 32) * 100);
+    gpuComp = Math.min(100, gpu.tier * 10);
+    cpuComp = Math.min(100, cpu.tier * 10);
+    vramComp = Math.min(100, (vramGb / 12) * 100);
+    diskComp = disk.factor * 100;
     systemScore = Math.round(ramComp * 0.30 + gpuComp * 0.25 + cpuComp * 0.22 + vramComp * 0.13 + diskComp * 0.10);
   }
 
@@ -148,9 +173,22 @@ export function evaluateSpec(spec) {
   const workflows = WORKFLOWS.map((wf) => evaluateTarget(wf, ctx));
   const matrix = MATRIX_TARGETS.map((t) => evaluateTarget(t, ctx));
 
-  // Best workflow pick (highest score that isn't edu fallback unless score is low)
-  const sortedWf = [...workflows].sort((a, b) => b.score - a.score);
-  const bestWorkflow = sortedWf[0];
+  // Best workflow pick: among workflows that run comfortably (>= 82), pick the most ambitious;
+  // otherwise fall back to highest score.
+  const WF_AMBITION = {
+    'wf-hdrp': 6,
+    'wf-xr': 5,
+    'wf-ai': 4,
+    'wf-multiplayer': 3,
+    'wf-3d-indie': 2,
+    'wf-2d-mobile': 1,
+    'wf-edu': 0
+  };
+  const comfortableWf = workflows.filter((w) => w.score >= 82);
+  const pool = comfortableWf.length ? comfortableWf : workflows;
+  const bestWorkflow = [...pool].sort(
+    (a, b) => (WF_AMBITION[b.id] ?? 0) - (WF_AMBITION[a.id] ?? 0) || b.score - a.score
+  )[0];
 
   // Upgrade Simulator
   const upgrades = [];
@@ -213,6 +251,52 @@ export function evaluateSpec(spec) {
     doctorTips.push('doc_pro_optimal');
   }
 
+  const pillarScores = {
+    cpu: Math.round(cpuComp),
+    gpu: Math.round(gpuComp),
+    vram: Math.round(vramComp),
+    ram: Math.round(ramComp),
+    disk: Math.round(diskComp)
+  };
+
+  const compatibleCount = matrix.filter((m) => m.status === 'can-run' || m.status === 'can-run-slow').length;
+  const furthestMilestone =
+    systemScore >= 88
+      ? 'rt_ai'
+      : systemScore >= 74
+        ? 'hdrp_vr'
+        : systemScore >= 58
+          ? 'urp_pro'
+          : systemScore >= 42
+            ? 'urp'
+            : systemScore >= 26
+              ? 'mobile'
+              : '2d';
+
+  let primaryBottleneck = { key: 'none', value: '' };
+  if (!osObj.desktop) {
+    primaryBottleneck = { key: 'os', value: 'Mobile OS' };
+  } else {
+    const pillars = [
+      { key: 'ram', score: ramComp, value: `${ramGb} GB` },
+      { key: 'vram', score: vramComp, value: `${vramGb} GB` },
+      { key: 'gpu', score: gpuComp, value: `Tier ${gpu.tier}` },
+      { key: 'cpu', score: cpuComp, value: `Tier ${cpu.tier}` },
+      { key: 'disk', score: diskComp, value: disk.id.toUpperCase() }
+    ];
+    pillars.sort((a, b) => a.score - b.score);
+    if (pillars[0].score < 65) {
+      primaryBottleneck = { key: pillars[0].key, value: pillars[0].value };
+    }
+  }
+
+  const aiOrder = ['llm-32b', 'llm-14b', 'llm-7b', 'llm-3b', 'ai-sentis'];
+  const aiCeiling =
+    aiOrder.find((id) => {
+      const m = matrix.find((item) => item.id === id);
+      return m && (m.status === 'can-run' || m.status === 'can-run-slow');
+    }) || 'cloud';
+
   return {
     systemScore,
     grade,
@@ -223,6 +307,14 @@ export function evaluateSpec(spec) {
     disk,
     ide,
     memoryBudget: { total: ramGb, osGb, unityGb, ideGb, usedGb, headroomGb },
+    pillarScores,
+    summaryKpis: {
+      compatibleCount,
+      totalTargets: matrix.length,
+      furthestMilestone,
+      primaryBottleneck,
+      aiCeiling
+    },
     bestWorkflow,
     workflows,
     matrix,
@@ -231,7 +323,7 @@ export function evaluateSpec(spec) {
   };
 }
 
-function evaluateSpecCore(spec) {
+export function evaluateSpecCore(spec) {
   const osObj = OS_LIST.find((o) => o.id === spec.os) || OS_LIST[0];
   const cpu = CPUS.find((c) => c.id === spec.cpuId) || CPUS[1];
   const gpu = GPUS.find((g) => g.id === spec.gpuId) || GPUS[GPUS.length - 1];

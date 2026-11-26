@@ -1,24 +1,35 @@
 import { CPUS, DISKS, GPUS, IDES, OS_LIST, PRESETS } from './data/hardware-db.js';
 import { detectHardware, runStressBenchmark } from './engine/detector.js';
-import { evaluateSpec } from './engine/evaluator.js';
+import { evaluateSpec, evaluateSpecCore } from './engine/evaluator.js';
 import { TRANSLATIONS } from './i18n/translations.js';
 import { renderRequirementsHtml } from './content/static-requirements.js';
 
 const SUPPORTED_LANGS = ['en', 'uk', 'ru', 'ko'];
-const RING_CIRCUMFERENCE = 207.35;
 
-const SUN_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
-const MOON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+const SUN_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+const MOON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
 
 const WF_ICONS = {
-  smartphone: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
-  box: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
-  users: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-  sparkles: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
-  glasses: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-4l-2-3h-4l-2 3H4a2 2 0 0 1-2-2v-5Z"/></svg>',
-  cpu: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>',
-  graduation: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>'
+  smartphone: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+  box: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+  users: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  sparkles: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
+  glasses: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-4l-2-3h-4l-2 3H4a2 2 0 0 1-2-2v-5Z"/></svg>',
+  cpu: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>',
+  graduation: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>'
 };
+
+const PRESET_SHORT = {
+  school: { badge: 'S', labelKey: 'presetSchool' },
+  'mac-m2': { badge: 'M2', labelKey: 'presetMac' },
+  indie: { badge: '3060', labelKey: 'presetIndie' },
+  pro: { badge: '4070', labelKey: 'presetPro' }
+};
+
+const PRESET_POSITIONS = PRESETS.map((p) => ({
+  id: p.id,
+  score: evaluateSpecCore(p).systemScore
+}));
 
 function detectInitialLang() {
   const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -35,8 +46,9 @@ function detectInitialLang() {
 
 const state = {
   lang: detectInitialLang(),
-  theme: localStorage.getItem('canirun_theme') || 'light',
+  theme: localStorage.getItem('canirun_theme') || 'dark',
   activePreset: null,
+  displayedScore: 0,
   spec: {
     os: 'windows',
     cpuId: 'cpu-6c',
@@ -88,6 +100,33 @@ function showToast(msg) {
   showToast._timer = setTimeout(() => el.classList.remove('is-visible'), 2200);
 }
 
+function animateScore(target) {
+  const el = $('score-num');
+  if (!el) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const start = state.displayedScore;
+  if (reduced || start === target) {
+    state.displayedScore = target;
+    el.textContent = String(target);
+    return;
+  }
+  cancelAnimationFrame(animateScore._raf);
+  const t0 = performance.now();
+  const dur = 420;
+  const step = (now) => {
+    const p = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(start + (target - start) * eased);
+    el.textContent = String(val);
+    if (p < 1) {
+      animateScore._raf = requestAnimationFrame(step);
+    } else {
+      state.displayedScore = target;
+    }
+  };
+  animateScore._raf = requestAnimationFrame(step);
+}
+
 function populateSelects() {
   $('sel-os').innerHTML = OS_LIST.map((o) => `<option value="${o.id}">${o.name}</option>`).join('');
   $('sel-cpu').innerHTML = CPUS.map((c) => `<option value="${c.id}">${c.label}</option>`).join('');
@@ -111,15 +150,24 @@ function syncControlsFromState() {
   document.querySelectorAll('[data-vram]').forEach((btn) => {
     btn.classList.toggle('is-active', Number(btn.dataset.vram) === state.spec.vramGb);
   });
-  document.querySelectorAll('[data-preset]').forEach((btn) => {
-    btn.classList.toggle('is-active', btn.dataset.preset === state.activePreset);
-  });
 }
 
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', state.theme);
+  const schemeMeta = document.querySelector('meta[name="color-scheme"]');
+  if (schemeMeta) schemeMeta.content = state.theme;
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) themeMeta.content = state.theme === 'light' ? '#f2f0eb' : '#0b0d14';
   $('btn-theme').innerHTML = state.theme === 'dark' ? SUN_SVG : MOON_SVG;
   localStorage.setItem('canirun_theme', state.theme);
+}
+
+function closeLangMenu() {
+  const menu = $('lang-menu');
+  const btn = $('btn-lang-menu');
+  if (!menu || !btn) return;
+  menu.hidden = true;
+  btn.setAttribute('aria-expanded', 'false');
 }
 
 function applyTranslations() {
@@ -127,6 +175,9 @@ function applyTranslations() {
   document.documentElement.lang = state.lang;
   document.title = dict.metaTitle;
   localStorage.setItem('preferred_lang', state.lang);
+
+  const langCurrent = $('lang-current');
+  if (langCurrent) langCurrent.textContent = state.lang.toUpperCase();
 
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     const key = el.getAttribute('data-i18n');
@@ -162,7 +213,6 @@ function applyTranslations() {
     )
     .join('');
 
-  // Static requirements / how-it-works / learners block (same markup that is pre-rendered at build time)
   const reqRoot = $('requirements');
   if (reqRoot) reqRoot.innerHTML = renderRequirementsHtml(state.lang, dict);
 }
@@ -175,15 +225,150 @@ function statusMeta(status) {
   return { label: dict.statusCannot, cls: 'status--cannot-run' };
 }
 
-function formatBottlenecks(list) {
-  const dict = t();
-  if (!list || list.length === 0) return '—';
-  return list
-    .map((b) => {
-      if (typeof b === 'string') return dict.bottlenecks[b] || b;
-      return fmt(dict.bottlenecks[b.code] || b.code, b);
+function formatTokens(list, map) {
+  if (!list || list.length === 0) return [];
+  return list.map((item) => {
+    if (typeof item === 'string') return map[item] || item;
+    return fmt(map[item.code] || item.code, item);
+  });
+}
+
+function renderMilestoneTrack(res, dict) {
+  const fill = $('milestone-fill');
+  if (fill) fill.style.width = `${res.systemScore}%`;
+
+  const ticksEl = $('milestone-ticks');
+  if (ticksEl && dict.milestoneTicks) {
+    const pcts = [0, 20, 40, 60, 80, 100];
+    ticksEl.innerHTML = dict.milestoneTicks
+      .map((lbl, idx) => {
+        const reached = res.systemScore >= pcts[idx];
+        return `<div class="milestone-tick${reached ? ' is-reached' : ''}">
+          <span class="milestone-tick__pct">${pcts[idx]}%</span>
+          <span class="milestone-tick__lbl">${lbl}</span>
+        </div>`;
+      })
+      .join('');
+  }
+
+  const pinsEl = $('milestone-pins');
+  if (!pinsEl) return;
+
+  const sortedPins = [...PRESET_POSITIONS].sort((a, b) => a.score - b.score);
+  const presetHtml = sortedPins
+    .map((p, i) => {
+      const meta = PRESET_SHORT[p.id];
+      const clamped = Math.max(6, Math.min(93, p.score));
+      const prev = i > 0 ? sortedPins[i - 1].score : -99;
+      const stagger = Math.abs(p.score - prev) < 10;
+      const isActive = state.activePreset === p.id;
+      const label = dict[meta.labelKey] || p.id;
+      return `<button type="button" class="rig-pin${isActive ? ' is-active' : ''}${stagger ? ' rig-pin--stagger' : ''}" data-preset="${p.id}" style="left:${clamped}%" title="${label} (${p.score}%)">
+        <span class="rig-pin__tag">${label}</span>
+        <span class="rig-pin__dot">${meta.badge}</span>
+        <span class="rig-pin__stem" aria-hidden="true"></span>
+      </button>`;
     })
-    .join(' · ');
+    .join('');
+
+  const youLeft = Math.max(5, Math.min(95, res.systemScore));
+  const youHtml = `<div class="rig-pin rig-pin--you" style="left:${youLeft}%">
+    <span class="rig-pin__tag">★ ${dict.pinYou} · ${res.systemScore}%</span>
+    <span class="rig-pin__stem" aria-hidden="true"></span>
+  </div>`;
+
+  pinsEl.innerHTML = presetHtml + youHtml;
+}
+
+function renderHardwareWave(res, dict) {
+  const svg = $('hw-wave-svg');
+  const legend = $('hw-wave-legend');
+  if (!svg || !res.pillarScores) return;
+
+  const p = res.pillarScores;
+  const pillars = [
+    { lbl: dict.pillarCpu, val: p.cpu },
+    { lbl: dict.pillarGpu, val: p.gpu },
+    { lbl: dict.pillarVram, val: p.vram },
+    { lbl: dict.pillarRam, val: p.ram },
+    { lbl: dict.pillarDisk, val: p.disk }
+  ];
+
+  if (legend) {
+    legend.innerHTML = pillars.map((item) => `<span>${item.lbl} <strong>${item.val}%</strong></span>`).join('');
+  }
+
+  const xs = [28, 164, 300, 436, 572];
+  const pts = pillars.map((item, i) => ({
+    x: xs[i],
+    y: +(82 - (item.val / 100) * 64).toFixed(1)
+  }));
+
+  let linePath = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const cx = (pts[i].x + pts[i + 1].x) / 2;
+    linePath += ` C ${cx} ${pts[i].y}, ${cx} ${pts[i + 1].y}, ${pts[i + 1].x} ${pts[i + 1].y}`;
+  }
+  const areaPath = `${linePath} L ${pts[pts.length - 1].x} 94 L ${pts[0].x} 94 Z`;
+
+  const dots = pts
+    .map(
+      (pt) =>
+        `<circle cx="${pt.x}" cy="${pt.y}" r="3.6" fill="#ff4d7d" stroke="#ffffff" stroke-width="1.5" />`
+    )
+    .join('');
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="hwWaveStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#7c6bff" />
+        <stop offset="50%" stop-color="#ff4d7d" />
+        <stop offset="100%" stop-color="#ff8a4c" />
+      </linearGradient>
+      <linearGradient id="hwWaveArea" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#d946ef" stop-opacity="0.30" />
+        <stop offset="100%" stop-color="#7c6bff" stop-opacity="0.0" />
+      </linearGradient>
+    </defs>
+    <line x1="16" y1="50" x2="584" y2="50" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="4 4" />
+    <path d="${areaPath}" fill="url(#hwWaveArea)" />
+    <path d="${linePath}" fill="none" stroke="url(#hwWaveStroke)" stroke-width="2.8" stroke-linecap="round" />
+    ${dots}
+  `;
+}
+
+function renderFindingsTicker(res, dict) {
+  const el = $('findings-list');
+  if (!el) return;
+
+  const benchStr = state.microOpsPerMs || '—';
+  const f1 = state.webgpu
+    ? { dot: 'green', text: fmt(dict.findingWebgpuOk, { bench: benchStr }) }
+    : state.webgl2
+      ? { dot: 'amber', text: fmt(dict.findingWebgpuNo, { bench: benchStr }) }
+      : { dot: 'red', text: fmt(dict.findingWebgpuNo, { bench: benchStr }) };
+
+  const f2 = state.ramInferred
+    ? { dot: 'amber', text: fmt(dict.findingRamCap, { ram: res.spec.ramGb }) }
+    : res.spec.ramGb <= 8
+      ? { dot: 'red', text: fmt(dict.findingRamLow, { ram: res.spec.ramGb }) }
+      : { dot: 'green', text: fmt(dict.findingRamOk, { ram: res.spec.ramGb, free: res.memoryBudget.headroomGb, ide: res.ide.name.split(' ')[0] }) };
+
+  const f3 =
+    res.disk.id === 'hdd'
+      ? { dot: 'red', text: dict.findingDiskHdd }
+      : res.gpu.rt && res.gpu.fp16
+        ? { dot: 'green', text: fmt(dict.findingGpuRt, { gpu: res.gpu.name }) }
+        : { dot: 'amber', text: fmt(dict.findingGpuNoRt, { gpu: res.gpu.name, vram: res.spec.vramGb }) };
+
+  el.innerHTML = [f1, f2, f3]
+    .map(
+      (f) => `<div class="finding-pill" title="${f.text}">
+        <span class="finding-dot finding-dot--${f.dot}" aria-hidden="true"></span>
+        <span>${f.text}</span>
+      </div>`
+    )
+    .join('');
 }
 
 function renderEvaluation() {
@@ -191,11 +376,11 @@ function renderEvaluation() {
   const res = evaluateSpec(state.spec);
   state.lastEval = res;
 
-  $('score-num').textContent = res.systemScore;
-  const ring = $('score-ring-circle');
-  if (ring) {
-    ring.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - res.systemScore / 100));
-    ring.style.stroke = res.systemScore >= 75 ? '#b5e853' : res.systemScore >= 50 ? '#4ecdc4' : '#e8603c';
+  animateScore(res.systemScore);
+
+  const heroVerdict = $('hero-verdict');
+  if (heroVerdict && dict.heroVerdicts) {
+    heroVerdict.textContent = dict.heroVerdicts[res.grade] || '—';
   }
 
   const gradeEl = $('score-grade');
@@ -208,13 +393,30 @@ function renderEvaluation() {
   $('val-ram').textContent = `${res.spec.ramGb} GB`;
 
   const verdict = (dict.verdicts && dict.verdicts[res.grade]) || { title: '—', sub: '' };
-  const verdictBox = $('verdict-box');
-  if (verdictBox) verdictBox.className = `verdict-box verdict-box--${res.grade}`;
   if ($('verdict-headline')) $('verdict-headline').textContent = verdict.title;
   if ($('verdict-sub')) $('verdict-sub').textContent = verdict.sub;
 
   $('best-wf-name').textContent = dict.wfNames[res.bestWorkflow.id] || res.bestWorkflow.id;
-  $('best-wf-ver').textContent = `${res.bestWorkflow.recommendedVersion} · ${res.bestWorkflow.pipeline}`;
+  $('best-wf-ver').textContent = res.bestWorkflow.recommendedVersion;
+
+  // 4 KPI Tiles
+  const kpis = res.summaryKpis;
+  if (kpis) {
+    $('kpi-milestone').textContent = (dict.milestoneLabels && dict.milestoneLabels[kpis.furthestMilestone]) || kpis.furthestMilestone;
+    $('kpi-targets').textContent = fmt(dict.kpiTargetsFmt, { ok: kpis.compatibleCount, total: kpis.totalTargets });
+    if (kpis.primaryBottleneck.key === 'none') {
+      $('kpi-bottleneck').textContent = dict.kpiNone;
+    } else {
+      const bKey = kpis.primaryBottleneck.key;
+      const bVal = kpis.primaryBottleneck.value;
+      $('kpi-bottleneck').textContent = bKey === 'disk' ? bVal : `${bKey.toUpperCase()} (${bVal})`;
+    }
+    $('kpi-ai').textContent = (dict.aiCeilings && dict.aiCeilings[kpis.aiCeiling]) || kpis.aiCeiling;
+  }
+
+  renderMilestoneTrack(res, dict);
+  renderHardwareWave(res, dict);
+  renderFindingsTicker(res, dict);
 
   // Dual RAM & VRAM budget bars
   const mb = res.memoryBudget;
@@ -242,35 +444,88 @@ function renderEvaluation() {
   $('raw-gpu-text').textContent = state.rawRenderer;
   $('api-caps-text').textContent = `WebGL2: ${state.webgl2 ? 'OK' : 'NO'} · WebGPU: ${state.webgpu ? 'OK' : 'NO'} · MaxTex: ${state.maxTextureSize || '—'} · Bench: ${state.microOpsPerMs || '—'} op/ms`;
 
-  // Workflows
-  $('workflow-grid').innerHTML = res.workflows
-    .map((wf) => {
+  // PortWatch-Style Workflows (ranked best first)
+  const sortedWorkflows = [...res.workflows].sort((a, b) => b.score - a.score);
+  $('workflow-grid').innerHTML = sortedWorkflows
+    .map((wf, idx) => {
       const st = statusMeta(wf.status);
-      const notes = formatBottlenecks(wf.bottlenecks);
       const isBest = wf.id === res.bestWorkflow.id;
+      const pros = formatTokens(wf.strengths, dict.strengths);
+      const cons = formatTokens(wf.bottlenecks, dict.bottlenecks);
+      const sub = wf.subScores || { cpu: 50, gpu: 50, ram: 50, vram: 50 };
+
+      const prosHtml = pros.length
+        ? pros.map((p) => `<li><span class="wf-mark--ok" aria-hidden="true">✓</span><span>${p}</span></li>`).join('')
+        : `<li><span class="wf-mark--no" aria-hidden="true">–</span><span>${dict.noStrengths}</span></li>`;
+      const consHtml = cons.length
+        ? cons.map((c) => `<li><span class="wf-mark--no" aria-hidden="true">–</span><span>${c}</span></li>`).join('')
+        : `<li><span class="wf-mark--ok" aria-hidden="true">✓</span><span>${dict.noBlockers}</span></li>`;
+
       return `
       <article class="wf-card${isBest ? ' wf-card--best' : ''}">
-        <div class="wf-card__top">
+        <div class="wf-card__head">
           <div class="wf-title-group">
+            <span class="wf-rank">${idx + 1}</span>
             <span class="wf-icon" aria-hidden="true">${WF_ICONS[wf.icon] || WF_ICONS.box}</span>
-            <div>
+            <div class="wf-title-meta">
               <h3>${dict.wfNames[wf.id] || wf.id}</h3>
-              <span class="wf-card__ver">${wf.recommendedVersion}</span>
+              <div class="wf-chips">
+                <span class="wf-chip">${wf.recommendedVersion}</span>
+                <span class="wf-chip">${wf.pipeline}</span>
+                ${isBest ? `<span class="wf-chip wf-chip--best">${dict.bestMatchTag}</span>` : ''}
+              </div>
             </div>
           </div>
-          <span class="grade-pill grade--${wf.grade}">${wf.grade}</span>
+          <div class="wf-score-col">
+            <div class="wf-score-big">${wf.score}<small>%</small></div>
+            <span class="status-badge ${st.cls}">${st.label}</span>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <span class="status-badge ${st.cls}">${st.label}</span>
-          ${isBest ? `<span class="wf-best-pill">${dict.bestMatchTag}</span>` : ''}
-        </div>
+
         <div class="wf-bar" aria-hidden="true"><div class="wf-bar__fill" style="width:${wf.score}%"></div></div>
-        <div class="wf-card__metrics">
-          <span>Scene: ${wf.estFps}</span>
-          <span>Reload: ${wf.compileTime}</span>
-          <span>Score: ${wf.score}/100</span>
+
+        <div class="wf-micro-grid">
+          <div class="wf-micro">
+            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarCpu}</span><span class="wf-micro__val">Tier ${res.cpu.tier}/10</span></div>
+            <div class="wf-micro__track"><div class="wf-micro__fill" style="width:${sub.cpu}%"></div></div>
+          </div>
+          <div class="wf-micro">
+            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarGpu}</span><span class="wf-micro__val">Tier ${res.gpu.tier}/10</span></div>
+            <div class="wf-micro__track"><div class="wf-micro__fill" style="width:${sub.gpu}%"></div></div>
+          </div>
+          <div class="wf-micro">
+            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarRam}</span><span class="wf-micro__val">${res.spec.ramGb} GB</span></div>
+            <div class="wf-micro__track"><div class="wf-micro__fill" style="width:${sub.ram}%"></div></div>
+          </div>
+          <div class="wf-micro">
+            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarVram}</span><span class="wf-micro__val">${res.spec.vramGb} GB</span></div>
+            <div class="wf-micro__track"><div class="wf-micro__fill" style="width:${sub.vram}%"></div></div>
+          </div>
         </div>
-        ${notes !== '—' ? `<p class="wf-card__notes">${notes}</p>` : ''}
+
+        <details class="wf-details"${isBest ? ' open' : ''}>
+          <summary class="wf-summary">
+            <span class="wf-summary__metrics">
+              <span>${dict.metricScene}: <strong>${wf.estFps}</strong></span>
+              <span>${dict.metricReload}: <strong>${wf.compileTime}</strong></span>
+              <span>${dict.metricGrade}: <strong>${wf.grade}</strong></span>
+            </span>
+            <span class="wf-toggle-pill">
+              <span class="wf-toggle-open">${dict.showDetails}</span>
+              <span class="wf-toggle-close">${dict.hideDetails}</span>
+            </span>
+          </summary>
+          <div class="wf-split">
+            <div>
+              <h4 class="wf-col-title">${dict.whatWorks}</h4>
+              <ul class="wf-bullets">${prosHtml}</ul>
+            </div>
+            <div>
+              <h4 class="wf-col-title">${dict.whatsBlocking}</h4>
+              <ul class="wf-bullets">${consHtml}</ul>
+            </div>
+          </div>
+        </details>
       </article>`;
     })
     .join('');
@@ -287,13 +542,19 @@ function renderEvaluation() {
   $('matrix-tbody').innerHTML = filtered
     .map((item) => {
       const st = statusMeta(item.status);
+      const notes = formatTokens(item.bottlenecks, dict.bottlenecks).join(' · ') || '—';
       return `
       <tr>
         <td><strong>${item.name}</strong><span class="target-badge">${item.badge}</span></td>
-        <td><span class="grade-pill grade--${item.grade}">${item.grade}</span></td>
+        <td>
+          <div class="mini-score">
+            <span class="grade-pill grade--${item.grade}">${item.grade}</span>
+            <span class="mini-score__bar" aria-hidden="true"><span class="mini-score__fill" style="width:${item.score}%"></span></span>
+          </div>
+        </td>
         <td><span class="status-badge ${st.cls}">${st.label}</span></td>
         <td style="font-family:var(--font-mono);font-size:0.78rem;">${item.estFps} · ${item.compileTime}</td>
-        <td style="font-size:0.82rem;color:var(--text-secondary);">${formatBottlenecks(item.bottlenecks)}</td>
+        <td style="font-size:0.82rem;color:var(--text-secondary);">${notes}</td>
       </tr>`;
     })
     .join('');
@@ -383,8 +644,12 @@ function bindEvents() {
     });
   });
 
-  document.querySelectorAll('[data-preset]').forEach((btn) => {
-    btn.addEventListener('click', () => {
+  // Event delegation for clickable preset pins on the Milestone Bar
+  const pinsContainer = $('milestone-pins');
+  if (pinsContainer) {
+    pinsContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-preset]');
+      if (!btn) return;
       const p = PRESETS.find((x) => x.id === btn.dataset.preset);
       if (!p) return;
       state.activePreset = p.id;
@@ -401,7 +666,7 @@ function bindEvents() {
       syncControlsFromState();
       renderEvaluation();
     });
-  });
+  }
 
   document.querySelectorAll('[data-ram]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -443,9 +708,28 @@ function bindEvents() {
     applyTheme();
   });
 
+  // Compact Language Dropdown
+  const langTrigger = $('btn-lang-menu');
+  const langMenu = $('lang-menu');
+  if (langTrigger && langMenu) {
+    langTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = langMenu.hidden;
+      langMenu.hidden = !willOpen;
+      langTrigger.setAttribute('aria-expanded', String(willOpen));
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.lang-dropdown')) closeLangMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLangMenu();
+    });
+  }
+
   document.querySelectorAll('.lang-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       state.lang = btn.dataset.lang;
+      closeLangMenu();
       applyTranslations();
       renderEvaluation();
     });
