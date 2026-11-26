@@ -40,8 +40,14 @@ function detectInitialLang() {
   if (urlLang && SUPPORTED_LANGS.includes(urlLang)) return urlLang;
   const stored = localStorage.getItem('preferred_lang');
   if (stored && SUPPORTED_LANGS.includes(stored)) return stored;
-  const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
-  return SUPPORTED_LANGS.includes(nav) ? nav : 'en';
+  const langs = (navigator.languages && navigator.languages.length)
+    ? navigator.languages
+    : [navigator.language || navigator.userLanguage || 'en'];
+  for (const l of langs) {
+    const base = String(l || '').toLowerCase().split('-')[0];
+    if (SUPPORTED_LANGS.includes(base)) return base;
+  }
+  return 'en';
 }
 
 const state = {

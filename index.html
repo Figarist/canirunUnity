@@ -11,6 +11,33 @@
     var m = document.querySelector('meta[name="color-scheme"]');
     if (m) m.content = t;
   } catch (e) {}
+  (function () {
+    try {
+      if (document.documentElement.lang !== 'en') return;
+      if (!/^https?:$/.test(location.protocol) || location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+      if (new URLSearchParams(location.search).has('lang')) return;
+      if (navigator.webdriver || /bot|crawl|spider|slurp|facebookexternalhit|lighthouse|headless|bingpreview|yandex|baidu|duckduckbot|applebot|semrush|ahrefs/i.test(navigator.userAgent || '')) return;
+      var supported = ['en', 'uk', 'ru', 'ko'];
+      var stored = localStorage.getItem('preferred_lang');
+      var target = null;
+      if (stored && supported.indexOf(stored) !== -1) {
+        if (stored !== 'en') target = stored;
+      } else {
+        var langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || navigator.userLanguage || ''];
+        for (var i = 0; i < langs.length; i++) {
+          var base = String(langs[i] || '').toLowerCase().split('-')[0];
+          if (supported.indexOf(base) !== -1) {
+            if (base !== 'en') target = base;
+            break;
+          }
+        }
+      }
+      if (target) {
+        var basePath = location.pathname.replace(/index\.html$/, '').replace(/\/?$/, '/');
+        location.replace(basePath + target + '/' + location.search + location.hash);
+      }
+    } catch (e) {}
+  })();
   </script>
   <title>Can I Run Unity? Unity 6 System Requirements PC Check</title>
   <meta name="description" content="Check Unity 6 system requirements against your PC in seconds: GPU, CPU and RAM for 2D, URP, HDRP and VR, plus local AI. Free, in-browser, no install." />
@@ -134,7 +161,7 @@
         </span>
         <span class="brand-text">
           <span class="logo-title">Can I Run Unity?</span>
-          <span class="logo-sub">BY FIGARIST · SIVOCHKA.COM</span>
+          <span class="logo-sub notranslate" translate="no">BY FIGARIST · SIVOCHKA.COM</span>
         </span>
       </a>
 
@@ -149,7 +176,7 @@
 
       <div class="nav-controls">
         <span class="local-badge"><span class="status-dot" aria-hidden="true"></span><span data-i18n="localPill">100% LOCAL</span></span>
-        <div class="lang-dropdown">
+        <div class="lang-dropdown notranslate" translate="no">
           <button type="button" id="btn-lang-menu" class="lang-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="Select language">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             <span id="lang-current">EN</span>
@@ -171,7 +198,7 @@
     <section class="hero-band" aria-labelledby="hero-title">
       <div class="hero-band__top">
         <div class="hero-band__copy">
-          <p class="home-eyebrow"><span class="home-mark" aria-hidden="true">F</span><span data-i18n="heroKicker">LOCAL HARDWARE ANALYZER</span></p>
+          <p class="home-eyebrow"><span class="home-mark notranslate" translate="no" aria-hidden="true">F</span><span data-i18n="heroKicker">LOCAL HARDWARE ANALYZER</span></p>
           <h1 id="hero-title" class="hero-headline">
             <span data-i18n="heroTitle">Can I Run Unity?</span>
             <span id="hero-verdict" class="hero-verdict-accent">—</span>
