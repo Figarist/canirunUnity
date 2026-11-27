@@ -111,6 +111,8 @@ export const TRANSLATIONS = {
     seoEcoLead: 'Made by Ihor Sivochka (Figarist) as part of an open toolkit for Unity developers, game jammers, and students:',
     faqTitle: 'Frequently Asked Questions (FAQ)',
     footerMade: 'Made by Ihor Sivochka (Figarist) — Unity dev to Unity dev.',
+    footerPrivacy: 'Privacy policy',
+    footerPrivacyUrl: 'https://sivochka.com/privacy/',
     verdicts: {
       S: { title: 'Can build GTA 6-scale worlds', sub: 'Top-tier PC: realistic 3D, VR, multiplayer testing, and an offline AI helper with zero lag.' },
       A: { title: 'Ready for Subnautica / Rust / PCVR', sub: 'Handles heavy 3D, realistic lighting, fast light baking, and smooth 90 Hz VR.' },
@@ -419,6 +421,8 @@ export const TRANSLATIONS = {
     seoEcoLead: 'Створив Ігор Сівочка (Figarist) як частину відкритого набору інструментів для Unity-девів, учасників геймджемів та учнів:',
     faqTitle: 'Часті запитання (FAQ)',
     footerMade: 'Створив Ігор Сівочка (Figarist) — від Unity-дева для Unity-девів.',
+    footerPrivacy: 'Політика конфіденційності',
+    footerPrivacyUrl: 'https://sivochka.com/uk/privacy/',
     verdicts: {
       S: { title: 'Потягне робити GTA 6-масштаб', sub: 'Топовий ПК: реалістичне 3D, VR, тест мультиплеєра та потужний AI-помічник без жодних гальм.' },
       A: { title: 'Рівень Subnautica / Rust / PCVR', sub: 'Тягне важке 3D, реалістичну графіку, швидке запікання світла та плавний VR.' },
@@ -726,6 +730,8 @@ export const TRANSLATIONS = {
     seoEcoLead: 'Создал Игорь Сивочка (Figarist) как часть открытого набора инструментов для Unity-девов, участников геймджемов и учеников:',
     faqTitle: 'Частые вопросы (FAQ)',
     footerMade: 'Создал Игорь Сивочка (Figarist) — от Unity-дева для Unity-девов.',
+    footerPrivacy: 'Политика конфиденциальности',
+    footerPrivacyUrl: 'https://sivochka.com/ru/privacy/',
     verdicts: {
       S: { title: 'Потянет делать GTA 6-масштаб', sub: 'Топовый ПК: реалистичное 3D, VR, тест мультиплеера и мощный AI-помощник без тормозов.' },
       A: { title: 'Уровень Subnautica / Rust / PCVR', sub: 'Тянет тяжёлое 3D, реалистичную графику, быстрое запекание света и плавный VR.' },
@@ -1033,6 +1039,8 @@ export const TRANSLATIONS = {
     seoEcoLead: 'Ihor Sivochka (Figarist)가 Unity 개발자, 게임잼 참가자, 학생들을 위해 제작했습니다:',
     faqTitle: '자주 묻는 질문 (FAQ)',
     footerMade: 'Ihor Sivochka (Figarist) 제작 — Unity 개발자에서 Unity 개발자에게.',
+    footerPrivacy: '개인정보 처리방침',
+    footerPrivacyUrl: 'https://sivochka.com/ko/privacy/',
     verdicts: {
       S: { title: 'GTA 6급 오픈월드도 거뜬한 최고급 PC', sub: '고화질 3D, VR, 멀티플레이 테스트, 오프라인 AI 도우미까지 끊김 없이 실행됩니다.' },
       A: { title: '서브노티카 / 러스트 / PCVR 개발급', sub: '묵직한 3D, 사실적인 조명, 빠른 라이트 베이크, 90Hz VR 테스트가 쾌적합니다.' },

@@ -189,6 +189,8 @@ function applyTranslations() {
     const key = el.getAttribute('data-i18n');
     if (dict[key]) el.textContent = dict[key];
   });
+  const footerPrivacy = $('footer-privacy');
+  if (footerPrivacy && dict.footerPrivacyUrl) footerPrivacy.href = dict.footerPrivacyUrl;
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     const key = el.getAttribute('data-i18n-placeholder');
     if (dict[key]) el.setAttribute('placeholder', dict[key]);

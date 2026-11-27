@@ -30,6 +30,11 @@ async function run() {
 
   const rawBaseHtml = fs.readFileSync(baseHtmlPath, 'utf8');
 
+  const injectPrivacyLink = (html, dict) => html.replace(
+    /<a id="footer-privacy" href="[^"]*" data-i18n="footerPrivacy">[^<]*<\/a>/,
+    () => `<a id="footer-privacy" href="${escapeAttr(dict.footerPrivacyUrl)}" data-i18n="footerPrivacy">${escapeAttr(dict.footerPrivacy)}</a>`
+  );
+
   const REQ_MARKER = '<!--STATIC_REQUIREMENTS-->';
   const injectRequirements = (html, lang) => {
     if (!html.includes(REQ_MARKER)) throw new Error('Missing STATIC_REQUIREMENTS marker in dist/index.html');
@@ -37,7 +42,7 @@ async function run() {
   };
 
   // Inject EN FAQPage + static requirements section into root dist/index.html
-  const enHtml = injectRequirements(injectFaqJsonLd(rawBaseHtml, TRANSLATIONS.en.faqItems), 'en');
+  const enHtml = injectPrivacyLink(injectRequirements(injectFaqJsonLd(rawBaseHtml, TRANSLATIONS.en.faqItems), 'en'), TRANSLATIONS.en);
   fs.writeFileSync(baseHtmlPath, enHtml, 'utf8');
 
   const LOCALES = {
@@ -48,7 +53,7 @@ async function run() {
 
   for (const [lang, meta] of Object.entries(LOCALES)) {
     const dict = TRANSLATIONS[lang];
-    let html = injectRequirements(injectFaqJsonLd(rawBaseHtml, dict.faqItems), lang);
+    let html = injectPrivacyLink(injectRequirements(injectFaqJsonLd(rawBaseHtml, dict.faqItems), lang), dict);
     html = html.replace(/<html lang="en"/, `<html lang="${lang}"`);
     html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeAttr(dict.metaTitle)}</title>`);
     html = html.replace(
