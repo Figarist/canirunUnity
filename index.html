@@ -14,6 +14,7 @@
   (function () {
     try {
       if (document.documentElement.lang !== 'en') return;
+      if (/\/(uk|ru|ko|pl)(?:\/|$)/.test(location.pathname)) return;
       if (!/^https?:$/.test(location.protocol) || location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
       if (new URLSearchParams(location.search).has('lang')) return;
       if (navigator.webdriver || /bot|crawl|spider|slurp|facebookexternalhit|lighthouse|headless|bingpreview|yandex|baidu|duckduckbot|applebot|semrush|ahrefs/i.test(navigator.userAgent || '')) return;
@@ -33,8 +34,12 @@
         }
       }
       if (target) {
-        var basePath = location.pathname.replace(/index\.html$/, '').replace(/\/?$/, '/');
-        location.replace(basePath + target + '/' + location.search + location.hash);
+        var currentPath = location.pathname.replace(/index\.html$/, '').replace(/\/?$/, '/');
+        var rootPath = location.pathname.replace(/index\.html$/, '').replace(/\/(uk|ru|ko|pl)\/?$/, '/').replace(/\/?$/, '/');
+        var nextPath = rootPath + target + '/';
+        if (nextPath !== currentPath) {
+          location.replace(nextPath + location.search + location.hash);
+        }
       }
     } catch (e) {}
   })();

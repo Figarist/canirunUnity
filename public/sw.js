@@ -1,4 +1,4 @@
-const CACHE_NAME = 'canirun-unity-v5';
+const CACHE_NAME = 'canirun-unity-v6';
 const CORE_ASSETS = [
   '/canirunUnity/',
   '/canirunUnity/uk/',
