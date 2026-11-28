@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 async function run() {
   const { matchGpuFromString, inferRamFromGpu } = await import('../src/data/hardware-db.js');
   const { evaluateSpec } = await import('../src/engine/evaluator.js');
-  const { cleanRendererName } = await import('../src/engine/detector.js');
+  const { cleanRendererName, mapCpuId } = await import('../src/engine/detector.js');
   const { TRANSLATIONS } = await import('../src/i18n/translations.js');
 
   // 1. GPU WebGL string parsing
@@ -18,19 +18,44 @@ async function run() {
   const uhd = matchGpuFromString('ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0)');
   assert.equal(uhd.id, 'intel-uhd');
 
-  // 2. Smart RAM heuristic when browser caps deviceMemory at 8 GB
+  // 1b. Laptop & fallback GPU parsing
+  const rtx3060Lap = matchGpuFromString(cleanRendererName('ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU Direct3D11 vs_5_0 ps_5_0)'));
+  assert.equal(rtx3060Lap.id, 'rtx-3060-laptop');
+  assert.equal(rtx3060Lap.vram, 6);
+  assert.equal(rtx3060Lap.laptop, true);
+
+  const rtx3060Ti = matchGpuFromString('NVIDIA GeForce RTX 3060 Ti');
+  assert.equal(rtx3060Ti.id, 'rtx-3060-ti');
+  assert.equal(rtx3060Ti.vram, 8);
+
+  const rtx2050 = matchGpuFromString('NVIDIA GeForce RTX 2050');
+  assert.equal(rtx2050.id, 'rtx-2050-laptop');
+  assert.equal(rtx2050.vram, 4);
+  assert.equal(rtx2050.tier, 4);
+
+  const gtx970 = matchGpuFromString('NVIDIA GeForce GTX 970');
+  assert.equal(gtx970.id, 'generic-dedicated');
+  assert.equal(gtx970.tier, 3);
+
+  // 2. Smart RAM heuristic & Apple Silicon CPU mapping
   const inferredPro = inferRamFromGpu(8, rtx4070s);
   assert.equal(inferredPro.ramGb, 32);
   assert.equal(inferredPro.inferred, true);
+
+  const inferredLaptop = inferRamFromGpu(8, uhd, 20);
+  assert.equal(inferredLaptop.ramGb, 16);
+  assert.equal(inferredLaptop.inferred, true);
 
   const inferredExact = inferRamFromGpu(4, uhd);
   assert.equal(inferredExact.ramGb, 4);
   assert.equal(inferredExact.inferred, false);
 
-  // 3. School Laptop (8 GB, Intel UHD, SATA SSD)
+  assert.equal(mapCpuId(8, 1200, 'macos_arm'), 'cpu-8c');
+
+  // 3. School / Optimus-fallback Laptop (8 GB, Intel UHD 1 GB, 20T CPU, SATA SSD)
   const school = evaluateSpec({
     os: 'windows',
-    cpuId: 'cpu-4c',
+    cpuId: 'cpu-12c',
     gpuId: 'intel-uhd',
     vramGb: 1,
     ramGb: 8,
@@ -38,10 +63,51 @@ async function run() {
     ideId: 'vscode'
   });
   assert.ok(['C', 'D'].includes(school.grade), `Expected C or D for school laptop, got ${school.grade}`);
+  assert.notEqual(school.bestWorkflow.id, 'wf-hdrp', 'Weak laptop must never recommend HDRP');
+  assert.ok(['wf-edu', 'wf-2d-mobile'].includes(school.bestWorkflow.id), `Expected 2D/Edu bestWorkflow, got ${school.bestWorkflow.id}`);
+  assert.notEqual(school.summaryKpis.furthestMilestone, 'urp', 'Intel UHD 1GB must not claim 3D milestone');
   const hdrpSchool = school.matrix.find((m) => m.id === 'rp-hdrp');
   assert.equal(hdrpSchool.status, 'cannot-run');
   const llm14bSchool = school.matrix.find((m) => m.id === 'llm-14b');
   assert.equal(llm14bSchool.status, 'cannot-run');
+
+  // 3b. Bottleneck caps: 4 GB RAM + RTX 4090 must not get Grade B
+  const lowRamRig = evaluateSpec({
+    os: 'windows',
+    cpuId: 'cpu-12c',
+    gpuId: 'rtx-4090',
+    vramGb: 24,
+    ramGb: 4,
+    diskId: 'nvme',
+    ideId: 'vscode'
+  });
+  assert.ok(lowRamRig.systemScore <= 38, `Expected <= 38 for 4 GB RAM rig, got ${lowRamRig.systemScore}`);
+  assert.ok(['D', 'F'].includes(lowRamRig.grade), `Expected D or F for 4 GB RAM rig, got ${lowRamRig.grade}`);
+
+  // 3c. Upgrade Simulator for Apple Silicon & Laptop GPU
+  const macEval = evaluateSpec({
+    os: 'macos_arm',
+    cpuId: 'cpu-8c',
+    gpuId: 'apple-m2',
+    vramGb: 6,
+    ramGb: 8,
+    diskId: 'nvme',
+    ideId: 'vscode'
+  });
+  assert.ok(macEval.upgrades.some((u) => u.noteKey === 'upgradeMacNote'), 'Expected upgradeMacNote for macOS ARM');
+  assert.ok(!macEval.upgrades.some((u) => u.type === 'gpu'), 'macOS ARM must not suggest desktop GPU upgrade');
+
+  const laptopEval = evaluateSpec({
+    os: 'windows',
+    cpuId: 'cpu-6c',
+    gpuId: 'rtx-3060-laptop',
+    vramGb: 6,
+    ramGb: 16,
+    diskId: 'nvme',
+    ideId: 'vscode'
+  });
+  assert.ok(laptopEval.upgrades.some((u) => u.noteKey === 'upgradeLaptopGpuNote'), 'Expected upgradeLaptopGpuNote for laptop GPU');
+  assert.ok(!laptopEval.upgrades.some((u) => u.type === 'gpu'), 'Laptop GPU must not suggest desktop GPU upgrade');
 
   // 4. Pro Rig (32 GB, RTX 4070 Super 12 GB, NVMe)
   const pro = evaluateSpec({
@@ -59,6 +125,7 @@ async function run() {
   assert.equal(sentisPro.status, 'can-run');
   const llm7bPro = pro.matrix.find((m) => m.id === 'llm-7b');
   assert.equal(llm7bPro.status, 'can-run');
+  assert.equal(llm7bPro.subScores.vram, 100, 'LLM 7B on 12 GB VRAM should score 100 VRAM without double-counting');
 
   // 5. 4-Language dictionary key parity + 10 FAQ items
   const baseKeys = Object.keys(TRANSLATIONS.en).sort();
@@ -130,6 +197,7 @@ async function run() {
   assert.equal(metaVal(/<meta property="og:description" content="([^"]*)"/), TRANSLATIONS.en.metaDesc, 'og:description out of sync');
   assert.equal(metaVal(/<meta name="twitter:description" content="([^"]*)"/), TRANSLATIONS.en.metaDesc, 'twitter:description out of sync');
   assert.ok(indexHtml.includes('<!--STATIC_REQUIREMENTS-->'), 'index.html missing STATIC_REQUIREMENTS marker');
+  assert.ok(indexHtml.includes('<option value="20">20 GB</option>'), 'index.html missing 20 GB VRAM option');
 
   console.log('All regression tests passed (GPU parser, RAM heuristic, scoring, AI+Unity matrix, 4-lang parity, 12 FAQs, static requirements section, meta lengths).');
 }

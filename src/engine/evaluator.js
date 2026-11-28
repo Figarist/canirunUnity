@@ -38,11 +38,8 @@ function evaluateTarget(target, ctx) {
     };
   }
 
-  const effectiveRam = Math.max(2, ramGb - (target.extraRam || 0));
-  const effectiveVram = Math.max(0.5, vramGb - (target.extraVram || 0));
-
-  const ramPts = ratioScore(effectiveRam, target.minRam, target.recRam);
-  const vramPts = ratioScore(effectiveVram, target.minVram, target.recVram);
+  const ramPts = ratioScore(ramGb, target.minRam, target.recRam);
+  const vramPts = ratioScore(vramGb, target.minVram, target.recVram);
   const cpuPts = ratioScore(cpu.tier, target.minCpu, target.recCpu);
   const gpuPts = ratioScore(gpu.tier, target.minGpu, target.recGpu);
   const diskPenalty = target.needsNvme && disk.id === 'hdd' ? 18 : target.needsNvme && disk.id === 'sata' ? 5 : 0;
@@ -66,9 +63,11 @@ function evaluateTarget(target, ctx) {
 
   if (cpu.tier < target.minCpu) {
     bottlenecks.push({ code: 'cpu_low', actual: cpu.cores, req: target.minCpu });
+    rawScore = Math.min(rawScore, 46);
   }
   if (gpu.tier < target.minGpu) {
     bottlenecks.push({ code: 'gpu_low', actual: gpu.name, req: target.minGpu });
+    rawScore = Math.min(rawScore, target.minGpu - gpu.tier >= 2 ? 34 : 42);
   }
   if (target.needsNvme && disk.id === 'hdd') {
     bottlenecks.push({ code: 'hdd_slow' });
@@ -132,10 +131,23 @@ function evaluateTarget(target, ctx) {
   };
 }
 
+function applySystemCaps(rawScore, ramGb, vramGb, gpuTier) {
+  let score = rawScore;
+  if (ramGb < 8) score = Math.min(score, 38);
+  if (vramGb < 2) score = Math.min(score, 44);
+  if (gpuTier <= 1) score = Math.min(score, 30);
+  else if (gpuTier <= 2) score = Math.min(score, 44);
+  return score;
+}
+
 export function evaluateSpec(spec) {
   const osObj = OS_LIST.find((o) => o.id === spec.os) || OS_LIST[0];
-  const cpu = CPUS.find((c) => c.id === spec.cpuId) || CPUS[1];
-  const gpu = GPUS.find((g) => g.id === spec.gpuId) || GPUS[GPUS.length - 1];
+  const baseCpu = CPUS.find((c) => c.id === spec.cpuId) || CPUS[1];
+  const baseGpu = GPUS.find((g) => g.id === spec.gpuId) || GPUS[GPUS.length - 1];
+  const cpuBoost = Number(spec.cpuBoost) ? 1 : 0;
+  const gpuBoost = Number(spec.gpuBoost) ? 1 : 0;
+  const cpu = cpuBoost ? { ...baseCpu, tier: Math.min(10, baseCpu.tier + cpuBoost) } : baseCpu;
+  const gpu = gpuBoost ? { ...baseGpu, tier: Math.min(10, baseGpu.tier + gpuBoost) } : baseGpu;
   const disk = DISKS.find((d) => d.id === spec.diskId) || DISKS[1];
   const ide = IDES.find((i) => i.id === spec.ideId) || IDES[0];
   const ramGb = Number(spec.ramGb) || 8;
@@ -158,7 +170,8 @@ export function evaluateSpec(spec) {
     cpuComp = Math.min(100, cpu.tier * 10);
     vramComp = Math.min(100, (vramGb / 12) * 100);
     diskComp = disk.factor * 100;
-    systemScore = Math.round(ramComp * 0.30 + gpuComp * 0.25 + cpuComp * 0.22 + vramComp * 0.13 + diskComp * 0.10);
+    const rawSystem = Math.round(ramComp * 0.30 + gpuComp * 0.25 + cpuComp * 0.22 + vramComp * 0.13 + diskComp * 0.10);
+    systemScore = applySystemCaps(rawSystem, ramGb, vramGb, gpu.tier);
   }
 
   const grade = scoreToGrade(systemScore);
@@ -173,8 +186,8 @@ export function evaluateSpec(spec) {
   const workflows = WORKFLOWS.map((wf) => evaluateTarget(wf, ctx));
   const matrix = MATRIX_TARGETS.map((t) => evaluateTarget(t, ctx));
 
-  // Best workflow pick: among workflows that run comfortably (>= 82), pick the most ambitious;
-  // otherwise fall back to highest score.
+  // Best workflow pick: among workflows that run comfortably (>= 78), pick the most ambitious;
+  // otherwise pick the highest-scoring workflow (tie-breaking toward simpler/safer workflows).
   const WF_AMBITION = {
     'wf-hdrp': 6,
     'wf-xr': 5,
@@ -184,49 +197,68 @@ export function evaluateSpec(spec) {
     'wf-2d-mobile': 1,
     'wf-edu': 0
   };
-  const comfortableWf = workflows.filter((w) => w.score >= 82);
-  const pool = comfortableWf.length ? comfortableWf : workflows;
-  const bestWorkflow = [...pool].sort(
-    (a, b) => (WF_AMBITION[b.id] ?? 0) - (WF_AMBITION[a.id] ?? 0) || b.score - a.score
-  )[0];
+  const comfortableWf = workflows.filter((w) => w.score >= 78);
+  const bestWorkflow = comfortableWf.length
+    ? [...comfortableWf].sort(
+        (a, b) => (WF_AMBITION[b.id] ?? 0) - (WF_AMBITION[a.id] ?? 0) || b.score - a.score
+      )[0]
+    : [...workflows].sort(
+        (a, b) => b.score - a.score || (WF_AMBITION[a.id] ?? 0) - (WF_AMBITION[b.id] ?? 0)
+      )[0];
 
   // Upgrade Simulator
   const upgrades = [];
-  if (ramGb < 32) {
-    const nextRam = ramGb < 16 ? 16 : 32;
-    const sim = evaluateSpecCore({ ...spec, ramGb: nextRam });
+  if (osObj.id === 'macos_arm') {
     upgrades.push({
-      id: `upg-ram-${nextRam}`,
-      type: 'ram',
-      targetValue: `${nextRam} GB RAM`,
-      delta: Math.max(0, sim.systemScore - systemScore),
-      newScore: sim.systemScore,
-      newGrade: scoreToGrade(sim.systemScore)
+      id: 'upg-mac-note',
+      type: 'note',
+      noteKey: 'upgradeMacNote'
     });
-  }
-  if (disk.id !== 'nvme') {
-    const sim = evaluateSpecCore({ ...spec, diskId: 'nvme' });
-    upgrades.push({
-      id: 'upg-nvme',
-      type: 'disk',
-      targetValue: 'NVMe M.2 SSD',
-      delta: Math.max(0, sim.systemScore - systemScore),
-      newScore: sim.systemScore,
-      newGrade: scoreToGrade(sim.systemScore)
-    });
-  }
-  if (gpu.tier < 8) {
-    const targetGpu = gpu.tier < 6 ? 'rtx-3060-12' : 'rtx-4070-super';
-    const targetGpuObj = GPUS.find((g) => g.id === targetGpu);
-    const sim = evaluateSpecCore({ ...spec, gpuId: targetGpu, vramGb: targetGpuObj.vram });
-    upgrades.push({
-      id: `upg-${targetGpu}`,
-      type: 'gpu',
-      targetValue: targetGpuObj.name,
-      delta: Math.max(0, sim.systemScore - systemScore),
-      newScore: sim.systemScore,
-      newGrade: scoreToGrade(sim.systemScore)
-    });
+  } else {
+    if (ramGb < 32) {
+      const nextRam = ramGb < 16 ? 16 : 32;
+      const sim = evaluateSpecCore({ ...spec, ramGb: nextRam });
+      upgrades.push({
+        id: `upg-ram-${nextRam}`,
+        type: 'ram',
+        targetValue: `${nextRam} GB RAM`,
+        delta: Math.max(0, sim.systemScore - systemScore),
+        newScore: sim.systemScore,
+        newGrade: scoreToGrade(sim.systemScore)
+      });
+    }
+    if (disk.id !== 'nvme') {
+      const sim = evaluateSpecCore({ ...spec, diskId: 'nvme' });
+      upgrades.push({
+        id: 'upg-nvme',
+        type: 'disk',
+        targetValue: 'NVMe M.2 SSD',
+        delta: Math.max(0, sim.systemScore - systemScore),
+        newScore: sim.systemScore,
+        newGrade: scoreToGrade(sim.systemScore)
+      });
+    }
+    if (gpu.tier < 8) {
+      if (gpu.laptop) {
+        upgrades.push({
+          id: 'upg-laptop-gpu-note',
+          type: 'note',
+          noteKey: 'upgradeLaptopGpuNote'
+        });
+      } else {
+        const targetGpu = gpu.tier < 6 ? 'rtx-3060-12' : 'rtx-4070-super';
+        const targetGpuObj = GPUS.find((g) => g.id === targetGpu);
+        const sim = evaluateSpecCore({ ...spec, gpuId: targetGpu, vramGb: targetGpuObj.vram });
+        upgrades.push({
+          id: `upg-${targetGpu}`,
+          type: 'gpu',
+          targetValue: targetGpuObj.name,
+          delta: Math.max(0, sim.systemScore - systemScore),
+          newScore: sim.systemScore,
+          newGrade: scoreToGrade(sim.systemScore)
+        });
+      }
+    }
   }
 
   // Doctor Mode tips
@@ -260,7 +292,7 @@ export function evaluateSpec(spec) {
   };
 
   const compatibleCount = matrix.filter((m) => m.status === 'can-run' || m.status === 'can-run-slow').length;
-  const furthestMilestone =
+  let furthestMilestone =
     systemScore >= 88
       ? 'rt_ai'
       : systemScore >= 74
@@ -272,21 +304,24 @@ export function evaluateSpec(spec) {
             : systemScore >= 26
               ? 'mobile'
               : '2d';
+  if (ramGb < 8 || vramGb < 2 || gpu.tier <= 2) {
+    furthestMilestone = systemScore < 26 ? '2d' : 'mobile';
+  }
 
   let primaryBottleneck = { key: 'none', value: '' };
   if (!osObj.desktop) {
-    primaryBottleneck = { key: 'os', value: 'Mobile OS' };
+    primaryBottleneck = { key: 'os', value: '' };
   } else {
     const pillars = [
       { key: 'ram', score: ramComp, value: `${ramGb} GB` },
       { key: 'vram', score: vramComp, value: `${vramGb} GB` },
-      { key: 'gpu', score: gpuComp, value: `Tier ${gpu.tier}` },
-      { key: 'cpu', score: cpuComp, value: `Tier ${cpu.tier}` },
+      { key: 'gpu', score: gpuComp, tier: gpu.tier },
+      { key: 'cpu', score: cpuComp, tier: cpu.tier },
       { key: 'disk', score: diskComp, value: disk.id.toUpperCase() }
     ];
     pillars.sort((a, b) => a.score - b.score);
     if (pillars[0].score < 65) {
-      primaryBottleneck = { key: pillars[0].key, value: pillars[0].value };
+      primaryBottleneck = { key: pillars[0].key, value: pillars[0].value || '', tier: pillars[0].tier };
     }
   }
 
@@ -325,8 +360,12 @@ export function evaluateSpec(spec) {
 
 export function evaluateSpecCore(spec) {
   const osObj = OS_LIST.find((o) => o.id === spec.os) || OS_LIST[0];
-  const cpu = CPUS.find((c) => c.id === spec.cpuId) || CPUS[1];
-  const gpu = GPUS.find((g) => g.id === spec.gpuId) || GPUS[GPUS.length - 1];
+  const baseCpu = CPUS.find((c) => c.id === spec.cpuId) || CPUS[1];
+  const baseGpu = GPUS.find((g) => g.id === spec.gpuId) || GPUS[GPUS.length - 1];
+  const cpuBoost = Number(spec.cpuBoost) ? 1 : 0;
+  const gpuBoost = Number(spec.gpuBoost) ? 1 : 0;
+  const cpu = cpuBoost ? { ...baseCpu, tier: Math.min(10, baseCpu.tier + cpuBoost) } : baseCpu;
+  const gpu = gpuBoost ? { ...baseGpu, tier: Math.min(10, baseGpu.tier + gpuBoost) } : baseGpu;
   const disk = DISKS.find((d) => d.id === spec.diskId) || DISKS[1];
   const ramGb = Number(spec.ramGb) || 8;
   const vramGb = Number(spec.vramGb) || gpu.vram;
@@ -336,7 +375,8 @@ export function evaluateSpecCore(spec) {
   const cpuComp = Math.min(100, cpu.tier * 10);
   const vramComp = Math.min(100, (vramGb / 12) * 100);
   const diskComp = disk.factor * 100;
+  const rawSystem = Math.round(ramComp * 0.30 + gpuComp * 0.25 + cpuComp * 0.22 + vramComp * 0.13 + diskComp * 0.10);
   return {
-    systemScore: Math.round(ramComp * 0.30 + gpuComp * 0.25 + cpuComp * 0.22 + vramComp * 0.13 + diskComp * 0.10)
+    systemScore: applySystemCaps(rawSystem, ramGb, vramGb, gpu.tier)
   };
 }

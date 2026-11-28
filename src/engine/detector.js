@@ -22,7 +22,8 @@ function getWebGLInfo() {
   };
   try {
     const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    const glOpts = { powerPreference: 'high-performance' };
+    const gl = canvas.getContext('webgl2', glOpts) || canvas.getContext('webgl', glOpts);
     if (!gl) return result;
     result.webgl2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
     result.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) || 0;
@@ -43,7 +44,7 @@ function getWebGLInfo() {
 async function getWebGPUInfo() {
   try {
     if (!navigator.gpu) return { supported: false, description: '' };
-    const adapter = await navigator.gpu.requestAdapter();
+    const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
     if (!adapter) return { supported: false, description: '' };
     const info = adapter.info || (adapter.requestAdapterInfo ? await adapter.requestAdapterInfo() : {});
     return {
@@ -80,9 +81,15 @@ export function runQuickCpuMicroBench(durationMs = 80) {
   return { opsPerMs: Math.round(ops / elapsed), checksum: Math.round(acc) };
 }
 
-function mapCpuId(cores, opsPerMs) {
-  if (cores >= 20 || (cores >= 16 && opsPerMs > 1800)) return 'cpu-12c';
-  if (cores >= 14) return 'cpu-8c';
+export function mapCpuId(cores, opsPerMs, os = 'windows') {
+  if (os === 'macos_arm') {
+    if (cores >= 12) return 'cpu-12c';
+    if (cores >= 8) return 'cpu-8c';
+    if (cores >= 6) return 'cpu-6c';
+    return 'cpu-4c';
+  }
+  if (cores >= 24 || (cores >= 20 && opsPerMs > 1800)) return 'cpu-12c';
+  if (cores >= 16) return 'cpu-8c';
   if (cores >= 10) return 'cpu-6c';
   if (cores >= 6) return 'cpu-4c';
   return 'cpu-2c';
@@ -91,27 +98,45 @@ function mapCpuId(cores, opsPerMs) {
 export async function detectHardware() {
   const webgl = getWebGLInfo();
   const webgpu = await getWebGPUInfo();
-  const rawRenderer = webgl.renderer || webgpu.description || '';
-  const cleanedRenderer = cleanRendererName(rawRenderer);
-  const gpu = matchGpuFromString(cleanedRenderer || rawRenderer);
+  const cleanedWebgl = cleanRendererName(webgl.renderer);
+  const cleanedWebgpu = cleanRendererName(webgpu.description);
+  const webglGpu = matchGpuFromString(cleanedWebgl || webgl.renderer);
+  const webgpuGpu = webgpu.description ? matchGpuFromString(cleanedWebgpu || webgpu.description) : null;
+
+  let gpu = webglGpu;
+  let rawRenderer = cleanedWebgl || webgl.renderer || cleanedWebgpu || webgpu.description || 'WebGL Generic';
+  if (
+    webglGpu.unified &&
+    webglGpu.vendor !== 'Apple' &&
+    webgpuGpu &&
+    !webgpuGpu.unified &&
+    webgpuGpu.tier > webglGpu.tier
+  ) {
+    gpu = webgpuGpu;
+    rawRenderer = cleanedWebgpu || webgpu.description || rawRenderer;
+  }
 
   let os = detectOs();
-  if (os === 'macos_arm' && /Intel/i.test(rawRenderer)) {
+  if (os === 'macos_arm' && /Intel/i.test(webgl.renderer || webgpu.description)) {
     os = 'macos_intel';
   }
 
   const cores = navigator.hardwareConcurrency || 4;
   const micro = runQuickCpuMicroBench(60);
-  const cpuId = mapCpuId(cores, micro.opsPerMs);
+  const cpuId = mapCpuId(cores, micro.opsPerMs, os);
 
   const browserDeviceMemory = navigator.deviceMemory || null;
-  const ramInfo = inferRamFromGpu(browserDeviceMemory, gpu);
+  const ramInfo = inferRamFromGpu(browserDeviceMemory, gpu, cores);
 
   // Unified memory Macs report unified pool; adjust default VRAM proportionally
   let vramGb = gpu.vram;
   if (gpu.unified && gpu.vendor === 'Apple') {
     vramGb = Math.max(4, Math.round(ramInfo.ramGb * 0.65));
   }
+
+  const possibleHybridGpu = Boolean(
+    (os === 'windows' || os === 'linux') && gpu.unified && gpu.vendor !== 'Apple' && cores >= 12
+  );
 
   return {
     os,
@@ -122,9 +147,10 @@ export async function detectHardware() {
     ramGb: ramInfo.ramGb,
     ramInferred: ramInfo.inferred,
     browserDeviceMemory,
+    possibleHybridGpu,
     diskId: gpu.tier >= 5 || os === 'macos_arm' ? 'nvme' : 'sata',
     ideId: ramInfo.ramGb >= 16 ? 'rider' : 'vscode',
-    rawRenderer: cleanedRenderer || rawRenderer || 'WebGL Generic',
+    rawRenderer,
     webgl2: webgl.webgl2,
     webgpu: webgpu.supported,
     maxTextureSize: webgl.maxTextureSize,

@@ -1,4 +1,4 @@
-import { CPUS, DISKS, GPUS, IDES, OS_LIST, PRESETS } from './data/hardware-db.js';
+import { CPUS, DISKS, GPUS, IDES, OS_LIST, PRESETS, inferRamFromGpu } from './data/hardware-db.js';
 import { detectHardware, runStressBenchmark } from './engine/detector.js';
 import { evaluateSpec, evaluateSpecCore } from './engine/evaluator.js';
 import { TRANSLATIONS } from './i18n/translations.js';
@@ -62,10 +62,15 @@ const state = {
     vramGb: 12,
     ramGb: 16,
     diskId: 'nvme',
-    ideId: 'rider'
+    ideId: 'rider',
+    gpuBoost: 0,
+    cpuBoost: 0
   },
   rawRenderer: '—',
   ramInferred: false,
+  browserDeviceMemory: null,
+  detectedCores: 4,
+  possibleHybridGpu: false,
   webgl2: false,
   webgpu: false,
   maxTextureSize: 0,
@@ -136,7 +141,7 @@ function animateScore(target) {
 function populateSelects() {
   $('sel-os').innerHTML = OS_LIST.map((o) => `<option value="${o.id}">${o.name}</option>`).join('');
   $('sel-cpu').innerHTML = CPUS.map((c) => `<option value="${c.id}">${c.label}</option>`).join('');
-  $('sel-gpu').innerHTML = GPUS.map((g) => `<option value="${g.id}">${g.name} (${g.vram} GB)</option>`).join('');
+  $('sel-gpu').innerHTML = GPUS.map((g) => `<option value="${g.id}">${g.name.includes('GB') ? g.name : `${g.name} (${g.vram} GB)`}</option>`).join('');
   $('sel-disk').innerHTML = DISKS.map((d) => `<option value="${d.id}">${d.label}</option>`).join('');
   $('sel-ide').innerHTML = IDES.map((i) => `<option value="${i.id}">${i.name}</option>`).join('');
 }
@@ -367,7 +372,9 @@ function renderFindingsTicker(res, dict) {
       ? { dot: 'red', text: dict.findingDiskHdd }
       : res.gpu.rt && res.gpu.fp16
         ? { dot: 'green', text: fmt(dict.findingGpuRt, { gpu: res.gpu.name }) }
-        : { dot: 'amber', text: fmt(dict.findingGpuNoRt, { gpu: res.gpu.name, vram: res.spec.vramGb }) };
+        : res.gpu.tier <= 2 || res.spec.vramGb <= 2
+          ? { dot: res.gpu.tier <= 1 ? 'red' : 'amber', text: fmt(dict.findingGpuIgpu, { gpu: res.gpu.name, vram: res.spec.vramGb }) }
+          : { dot: 'amber', text: fmt(dict.findingGpuNoRt, { gpu: res.gpu.name, vram: res.spec.vramGb }) };
 
   el.innerHTML = [f1, f2, f3]
     .map(
@@ -395,8 +402,8 @@ function renderEvaluation() {
   gradeEl.textContent = res.grade;
   gradeEl.className = `grade-badge grade--${res.grade}`;
 
-  $('val-cpu').textContent = `Tier ${res.cpu.tier}/10`;
-  $('val-gpu').textContent = `Tier ${res.gpu.tier}/10`;
+  $('val-cpu').textContent = fmt(dict.tierShortFmt, { n: res.cpu.tier });
+  $('val-gpu').textContent = fmt(dict.tierShortFmt, { n: res.gpu.tier });
   $('val-vram').textContent = `${res.spec.vramGb} GB`;
   $('val-ram').textContent = `${res.spec.ramGb} GB`;
 
@@ -414,9 +421,13 @@ function renderEvaluation() {
     $('kpi-targets').textContent = fmt(dict.kpiTargetsFmt, { ok: kpis.compatibleCount, total: kpis.totalTargets });
     if (kpis.primaryBottleneck.key === 'none') {
       $('kpi-bottleneck').textContent = dict.kpiNone;
+    } else if (kpis.primaryBottleneck.key === 'os') {
+      $('kpi-bottleneck').textContent = dict.mobileOsLabel;
     } else {
       const bKey = kpis.primaryBottleneck.key;
-      const bVal = kpis.primaryBottleneck.value;
+      const bVal = kpis.primaryBottleneck.tier !== undefined
+        ? fmt(dict.tierOnlyFmt, { n: kpis.primaryBottleneck.tier })
+        : kpis.primaryBottleneck.value;
       $('kpi-bottleneck').textContent = bKey === 'disk' ? bVal : `${bKey.toUpperCase()} (${bVal})`;
     }
     $('kpi-ai').textContent = (dict.aiCeilings && dict.aiCeilings[kpis.aiCeiling]) || kpis.aiCeiling;
@@ -440,6 +451,16 @@ function renderEvaluation() {
   const vramFree = +Math.max(0, vramTotal - 2.5).toFixed(1);
   $('vram-seg-unity').style.width = `${Math.round((vramUsed / vramTotal) * 100)}%`;
   $('vram-free-label').textContent = fmt(dict.vramFreeLabel, { free: vramFree });
+
+  const hybridBanner = $('hybrid-gpu-banner');
+  if (hybridBanner) {
+    if (state.possibleHybridGpu) {
+      hybridBanner.hidden = false;
+      $('hybrid-gpu-text').textContent = dict.hybridGpuNote;
+    } else {
+      hybridBanner.hidden = true;
+    }
+  }
 
   const capBanner = $('ram-cap-banner');
   if (state.ramInferred) {
@@ -494,11 +515,11 @@ function renderEvaluation() {
 
         <div class="wf-micro-grid">
           <div class="wf-micro">
-            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarCpu}</span><span class="wf-micro__val">Tier ${res.cpu.tier}/10</span></div>
+            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarCpu}</span><span class="wf-micro__val">${fmt(dict.tierShortFmt, { n: res.cpu.tier })}</span></div>
             <div class="wf-micro__track"><div class="wf-micro__fill" style="width:${sub.cpu}%"></div></div>
           </div>
           <div class="wf-micro">
-            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarGpu}</span><span class="wf-micro__val">Tier ${res.gpu.tier}/10</span></div>
+            <div class="wf-micro__top"><span class="wf-micro__lbl">${dict.pillarGpu}</span><span class="wf-micro__val">${fmt(dict.tierShortFmt, { n: res.gpu.tier })}</span></div>
             <div class="wf-micro__track"><div class="wf-micro__fill" style="width:${sub.gpu}%"></div></div>
           </div>
           <div class="wf-micro">
@@ -570,8 +591,10 @@ function renderEvaluation() {
   // Upgrades
   $('upgrade-list').innerHTML = res.upgrades.length
     ? res.upgrades
-        .map(
-          (u) => `
+        .map((u) =>
+          u.type === 'note'
+            ? `<li class="upgrade-item"><div><strong>${dict[u.noteKey] || u.noteKey}</strong></div></li>`
+            : `
         <li class="upgrade-item">
           <div>
             <strong>${u.targetValue}</strong>
@@ -581,7 +604,7 @@ function renderEvaluation() {
               grade: u.newGrade
             })}</div>
           </div>
-          <span class="upgrade-delta">+${u.delta} pts</span>
+          <span class="upgrade-delta">${fmt(dict.upgradeDeltaFmt, { delta: u.delta })}</span>
         </li>`
         )
         .join('')
@@ -593,16 +616,30 @@ function renderEvaluation() {
     .join('');
 }
 
+const VALID_VRAM_OPTS = [1, 2, 4, 6, 8, 10, 12, 16, 20, 24, 32];
+const VALID_RAM_OPTS = [4, 8, 12, 16, 24, 32, 64];
+
+function snapToOption(val, opts, fallback) {
+  const num = Number(val);
+  if (!Number.isFinite(num) || num <= 0) return fallback;
+  return opts.reduce((best, cur) => (Math.abs(cur - num) < Math.abs(best - num) ? cur : best), opts[0]);
+}
+
 function readSpecFromUrl() {
   const params = new URLSearchParams(window.location.search);
   if (!params.has('gpu') && !params.has('ram')) return false;
-  if (params.get('os')) state.spec.os = params.get('os');
-  if (params.get('cpu')) state.spec.cpuId = params.get('cpu');
-  if (params.get('gpu')) state.spec.gpuId = params.get('gpu');
-  if (params.get('vram')) state.spec.vramGb = Number(params.get('vram')) || 8;
-  if (params.get('ram')) state.spec.ramGb = Number(params.get('ram')) || 16;
-  if (params.get('disk')) state.spec.diskId = params.get('disk');
-  if (params.get('ide')) state.spec.ideId = params.get('ide');
+  const os = params.get('os');
+  if (os && OS_LIST.some((o) => o.id === os)) state.spec.os = os;
+  const cpu = params.get('cpu');
+  if (cpu && CPUS.some((c) => c.id === cpu)) state.spec.cpuId = cpu;
+  const gpu = params.get('gpu');
+  if (gpu && GPUS.some((g) => g.id === gpu)) state.spec.gpuId = gpu;
+  if (params.get('vram')) state.spec.vramGb = snapToOption(params.get('vram'), VALID_VRAM_OPTS, 8);
+  if (params.get('ram')) state.spec.ramGb = snapToOption(params.get('ram'), VALID_RAM_OPTS, 16);
+  const disk = params.get('disk');
+  if (disk && DISKS.some((d) => d.id === disk)) state.spec.diskId = disk;
+  const ide = params.get('ide');
+  if (ide && IDES.some((i) => i.id === ide)) state.spec.ideId = ide;
   return true;
 }
 
@@ -617,10 +654,15 @@ async function runAutoDetect() {
     vramGb: detected.vramGb,
     ramGb: detected.ramGb,
     diskId: detected.diskId,
-    ideId: detected.ideId
+    ideId: detected.ideId,
+    gpuBoost: 0,
+    cpuBoost: 0
   };
   state.rawRenderer = detected.rawRenderer;
   state.ramInferred = detected.ramInferred;
+  state.browserDeviceMemory = detected.browserDeviceMemory;
+  state.detectedCores = detected.cores;
+  state.possibleHybridGpu = detected.possibleHybridGpu;
   state.webgl2 = detected.webgl2;
   state.webgpu = detected.webgpu;
   state.maxTextureSize = detected.maxTextureSize;
@@ -639,7 +681,14 @@ function bindEvents() {
       const newGpuId = $('sel-gpu').value;
       if (id === 'sel-gpu' && newGpuId !== state.spec.gpuId) {
         const gObj = GPUS.find((g) => g.id === newGpuId);
-        if (gObj) $('sel-vram').value = String(gObj.vram);
+        if (gObj) {
+          $('sel-vram').value = String(gObj.vram);
+          if (!gObj.unified) state.possibleHybridGpu = false;
+          if (state.ramInferred) {
+            const reinferred = inferRamFromGpu(state.browserDeviceMemory, gObj, state.detectedCores);
+            $('sel-ram').value = String(reinferred.ramGb);
+          }
+        }
       }
       state.spec.gpuId = newGpuId;
       state.spec.vramGb = Number($('sel-vram').value);
@@ -651,6 +700,16 @@ function bindEvents() {
       renderEvaluation();
     });
   });
+
+  const btnPickDgpu = $('btn-pick-dgpu');
+  if (btnPickDgpu) {
+    btnPickDgpu.addEventListener('click', () => {
+      const selGpu = $('sel-gpu');
+      if (!selGpu) return;
+      selGpu.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      selGpu.focus();
+    });
+  }
 
   // Event delegation for clickable preset pins on the Milestone Bar
   const pinsContainer = $('milestone-pins');
@@ -668,9 +727,12 @@ function bindEvents() {
         vramGb: p.vramGb,
         ramGb: p.ramGb,
         diskId: p.diskId,
-        ideId: p.ideId
+        ideId: p.ideId,
+        gpuBoost: 0,
+        cpuBoost: 0
       };
       state.ramInferred = false;
+      state.possibleHybridGpu = false;
       syncControlsFromState();
       renderEvaluation();
     });
@@ -706,6 +768,9 @@ function bindEvents() {
       setHeaderProgress(pct);
       $('bench-status').textContent = `${t().benchRunning} (${phase.toUpperCase()} ${pct}%)`;
     });
+    state.spec.gpuBoost = res.suggestedGpuTierBoost || 0;
+    state.spec.cpuBoost = res.suggestedCpuTierBoost || 0;
+    renderEvaluation();
     $('bench-status').textContent = fmt(t().benchResult, { fps: res.gpuFps, cpu: res.cpuScore });
     setHeaderProgress(100);
     btn.disabled = false;

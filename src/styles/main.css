@@ -1136,6 +1136,10 @@ summary:focus-visible {
   font-weight: 600;
 }
 
+.hybrid-gpu-banner {
+  border-color: rgba(124, 107, 255, 0.35);
+}
+
 .detected-bar {
   display: flex;
   flex-wrap: wrap;
