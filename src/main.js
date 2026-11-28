@@ -4,7 +4,7 @@ import { evaluateSpec, evaluateSpecCore } from './engine/evaluator.js';
 import { TRANSLATIONS } from './i18n/translations.js';
 import { renderRequirementsHtml } from './content/static-requirements.js';
 
-const SUPPORTED_LANGS = ['en', 'uk', 'ru', 'ko'];
+const SUPPORTED_LANGS = ['en', 'uk', 'ru', 'ko', 'pl'];
 
 const SUN_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
 const MOON_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
@@ -199,6 +199,14 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     const key = el.getAttribute('data-i18n-placeholder');
     if (dict[key]) el.setAttribute('placeholder', dict[key]);
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (dict[key]) el.setAttribute('aria-label', dict[key]);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-title');
+    if (dict[key]) el.setAttribute('title', dict[key]);
   });
   document.querySelectorAll('.lang-btn').forEach((btn) => {
     btn.classList.toggle('is-active', btn.dataset.lang === state.lang);

@@ -127,10 +127,10 @@ async function run() {
   assert.equal(llm7bPro.status, 'can-run');
   assert.equal(llm7bPro.subScores.vram, 100, 'LLM 7B on 12 GB VRAM should score 100 VRAM without double-counting');
 
-  // 5. 4-Language dictionary key parity + 10 FAQ items
+  // 5. 5-Language dictionary key parity + 12 FAQ items
   const baseKeys = Object.keys(TRANSLATIONS.en).sort();
   assert.equal(TRANSLATIONS.en.faqItems.length, 12, 'Expected 12 FAQ items in EN');
-  for (const lang of ['uk', 'ru', 'ko']) {
+  for (const lang of ['uk', 'ru', 'ko', 'pl']) {
     const langKeys = Object.keys(TRANSLATIONS[lang]).sort();
     assert.deepEqual(langKeys, baseKeys, `Top-level i18n keys mismatch for ${lang}`);
     assert.equal(TRANSLATIONS[lang].faqItems.length, 12, `Expected 12 FAQ items in ${lang}`);
@@ -164,7 +164,7 @@ async function run() {
   const { WORKFLOWS, MATRIX_TARGETS } = await import('../src/data/unity-targets.js');
   const { renderRequirementsHtml } = await import('../src/content/static-requirements.js');
   const reqKeys = Object.keys(TRANSLATIONS.en.reqSection).sort();
-  for (const lang of ['en', 'uk', 'ru', 'ko']) {
+  for (const lang of ['en', 'uk', 'ru', 'ko', 'pl']) {
     const rs = TRANSLATIONS[lang].reqSection;
     assert.deepEqual(Object.keys(rs).sort(), reqKeys, `reqSection keys mismatch for ${lang}`);
     assert.equal(rs.cols.length, 6, `reqSection.cols length for ${lang}`);
@@ -199,7 +199,7 @@ async function run() {
   assert.ok(indexHtml.includes('<!--STATIC_REQUIREMENTS-->'), 'index.html missing STATIC_REQUIREMENTS marker');
   assert.ok(indexHtml.includes('<option value="20">20 GB</option>'), 'index.html missing 20 GB VRAM option');
 
-  console.log('All regression tests passed (GPU parser, RAM heuristic, scoring, AI+Unity matrix, 4-lang parity, 12 FAQs, static requirements section, meta lengths).');
+  console.log('All regression tests passed (GPU parser, RAM heuristic, scoring, AI+Unity matrix, 5-lang parity, 12 FAQs, static requirements section, meta lengths).');
 }
 
 run().catch((err) => {

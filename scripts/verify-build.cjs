@@ -1,7 +1,9 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 
+async function run() {
 const distDir = path.resolve(__dirname, '..', 'dist');
 
 const requiredFiles = [
@@ -9,6 +11,7 @@ const requiredFiles = [
   'uk/index.html',
   'ru/index.html',
   'ko/index.html',
+  'pl/index.html',
   'sitemap.xml',
   'robots.txt',
   'manifest.json',
@@ -26,7 +29,8 @@ const routeChecks = [
   { file: 'index.html', lang: 'en', canonical: 'https://sivochka.com/canirunUnity/' },
   { file: 'uk/index.html', lang: 'uk', canonical: 'https://sivochka.com/canirunUnity/uk/' },
   { file: 'ru/index.html', lang: 'ru', canonical: 'https://sivochka.com/canirunUnity/ru/' },
-  { file: 'ko/index.html', lang: 'ko', canonical: 'https://sivochka.com/canirunUnity/ko/' }
+  { file: 'ko/index.html', lang: 'ko', canonical: 'https://sivochka.com/canirunUnity/ko/' },
+  { file: 'pl/index.html', lang: 'pl', canonical: 'https://sivochka.com/canirunUnity/pl/' }
 ];
 
 for (const rc of routeChecks) {
@@ -71,6 +75,7 @@ const expectedHreflang = {
   uk: 'https://sivochka.com/canirunUnity/uk/',
   ru: 'https://sivochka.com/canirunUnity/ru/',
   ko: 'https://sivochka.com/canirunUnity/ko/',
+  pl: 'https://sivochka.com/canirunUnity/pl/',
   'x-default': 'https://sivochka.com/canirunUnity/'
 };
 for (const rc of routeChecks) {
@@ -82,4 +87,49 @@ for (const rc of routeChecks) {
   assert.ok(sitemap.includes(`<loc>${rc.canonical}</loc>`), `sitemap.xml missing <loc> ${rc.canonical}`);
 }
 
-console.log('Build verification passed: all 4 locales, 12-question FAQPage JSON-LD, static requirements section, SEO tags, and PWA assets present.');
+// 5-locale 100% key parity & no Ukrainian Cyrillic characters (є, ї, і, ґ) in en, pl, ru, ko
+const { TRANSLATIONS } = await import(pathToFileURL(path.resolve(__dirname, '..', 'src', 'i18n', 'translations.js')).href);
+const ALL_LOCALES = ['en', 'uk', 'ru', 'ko', 'pl'];
+const baseKeys = Object.keys(TRANSLATIONS.en).sort();
+const nestedObjects = ['wfNames', 'bottlenecks', 'doctorTipsMap', 'verdicts', 'reqSection', 'heroVerdicts', 'milestoneLabels', 'aiCeilings', 'strengths'];
+const ukCyrillicRe = /[єіїґЄІЇҐ]/;
+
+for (const lang of ALL_LOCALES) {
+  const dict = TRANSLATIONS[lang];
+  assert.ok(dict, `Missing locale ${lang} in TRANSLATIONS`);
+  assert.deepEqual(Object.keys(dict).sort(), baseKeys, `Top-level i18n keys mismatch for ${lang}`);
+  assert.equal(dict.faqItems.length, TRANSLATIONS.en.faqItems.length, `faqItems length mismatch for ${lang}`);
+  assert.equal(dict.seoCards.length, TRANSLATIONS.en.seoCards.length, `seoCards length mismatch for ${lang}`);
+  assert.equal(dict.seoTableRows.length, TRANSLATIONS.en.seoTableRows.length, `seoTableRows length mismatch for ${lang}`);
+  for (const objKey of nestedObjects) {
+    assert.deepEqual(
+      Object.keys(dict[objKey]).sort(),
+      Object.keys(TRANSLATIONS.en[objKey]).sort(),
+      `${objKey} keys mismatch for ${lang}`
+    );
+  }
+  if (lang !== 'uk') {
+    const serialized = JSON.stringify(dict);
+    const bad = serialized.match(ukCyrillicRe);
+    assert.ok(!bad, `Unexpected Ukrainian Cyrillic char "${bad && bad[0]}" in ${lang} translations`);
+  }
+}
+
+for (const rc of routeChecks) {
+  if (rc.lang === 'uk') continue;
+  const html = fs.readFileSync(path.join(distDir, rc.file), 'utf8');
+  const bodyOnly = html
+    .replace(/<script[\s\S]*?<\/script>/g, '')
+    .replace(/<style[\s\S]*?<\/style>/g, '')
+    .replace(/<div id="lang-menu"[\s\S]*?<\/div>/, '');
+  const bad = bodyOnly.match(ukCyrillicRe);
+  assert.ok(!bad, `Unexpected Ukrainian Cyrillic char "${bad && bad[0]}" in built ${rc.file}`);
+}
+
+console.log('Build verification passed: all 5 locales, 100% i18n parity, 12-question FAQPage JSON-LD, static requirements section, SEO tags, and PWA assets present.');
+}
+
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

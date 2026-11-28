@@ -17,7 +17,7 @@
       if (!/^https?:$/.test(location.protocol) || location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
       if (new URLSearchParams(location.search).has('lang')) return;
       if (navigator.webdriver || /bot|crawl|spider|slurp|facebookexternalhit|lighthouse|headless|bingpreview|yandex|baidu|duckduckbot|applebot|semrush|ahrefs/i.test(navigator.userAgent || '')) return;
-      var supported = ['en', 'uk', 'ru', 'ko'];
+      var supported = ['en', 'uk', 'ru', 'ko', 'pl'];
       var stored = localStorage.getItem('preferred_lang');
       var target = null;
       if (stored && supported.indexOf(stored) !== -1) {
@@ -53,6 +53,7 @@
   <link rel="alternate" hreflang="uk" href="https://sivochka.com/canirunUnity/uk/" />
   <link rel="alternate" hreflang="ru" href="https://sivochka.com/canirunUnity/ru/" />
   <link rel="alternate" hreflang="ko" href="https://sivochka.com/canirunUnity/ko/" />
+  <link rel="alternate" hreflang="pl" href="https://sivochka.com/canirunUnity/pl/" />
   <link rel="alternate" hreflang="x-default" href="https://sivochka.com/canirunUnity/" />
 
   <meta property="og:type" content="website" />
@@ -96,7 +97,7 @@
         "applicationSubCategory": "Game Engine Hardware Benchmark & Compatibility Checker",
         "operatingSystem": "Windows, macOS, Linux, Web",
         "browserRequirements": "Requires JavaScript and WebGL2 (optional WebGPU)",
-        "inLanguage": ["en", "uk", "ru", "ko"],
+        "inLanguage": ["en", "uk", "ru", "ko", "pl"],
         "isAccessibleForFree": true,
         "featureList": [
           "100% local WebGL2 & WebGPU GPU detection and CPU micro-benchmark",
@@ -145,7 +146,7 @@
   <script data-goatcounter="/m/e" async src="/m/v1.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a class="skip-link" href="#main-content" data-i18n="skipToMain">Skip to main content</a>
 
   <header class="app-header">
     <div class="header-progress-container" aria-hidden="true">
@@ -165,7 +166,7 @@
         </span>
       </a>
 
-      <nav class="nav-links" aria-label="Section navigation">
+      <nav class="nav-links" aria-label="Section navigation" data-i18n-aria="ariaNav">
         <a href="#workflows" data-i18n="navWorkflows">Workflows</a>
         <a href="#matrix" data-i18n="navMatrix">Matrix</a>
         <a href="#upgrades" data-i18n="navUpgrades">Upgrades</a>
@@ -177,7 +178,7 @@
       <div class="nav-controls">
         <span class="local-badge"><span class="status-dot" aria-hidden="true"></span><span data-i18n="localPill">100% LOCAL</span></span>
         <div class="lang-dropdown notranslate" translate="no">
-          <button type="button" id="btn-lang-menu" class="lang-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="Select language">
+          <button type="button" id="btn-lang-menu" class="lang-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="Select language" data-i18n-aria="ariaLangMenu">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             <span id="lang-current">EN</span>
           </button>
@@ -186,9 +187,10 @@
             <button type="button" class="lang-btn" data-lang="uk" role="menuitem">UK · Українська</button>
             <button type="button" class="lang-btn" data-lang="ru" role="menuitem">RU · Русский</button>
             <button type="button" class="lang-btn" data-lang="ko" role="menuitem">KO · 한국어</button>
+            <button type="button" class="lang-btn" data-lang="pl" role="menuitem">PL · Polski</button>
           </div>
         </div>
-        <button type="button" id="btn-theme" class="icon-btn" aria-label="Toggle color theme" title="Toggle Dark / Light"></button>
+        <button type="button" id="btn-theme" class="icon-btn" aria-label="Toggle color theme" title="Toggle Dark / Light" data-i18n-aria="ariaTheme" data-i18n-title="titleTheme"></button>
       </div>
     </div>
   </header>
@@ -231,13 +233,13 @@
     </section>
 
     <!-- ══════════════ OVERALL PROGRESS TELEMETRY CARD ══════════════ -->
-    <section class="telemetry-card" aria-label="Unity Telemetry Summary">
+    <section class="telemetry-card" aria-label="Unity Telemetry Summary" data-i18n-aria="ariaTelemetry">
       <div class="telemetry-top">
         <div class="telemetry-primary">
           <span class="telemetry-kicker" data-i18n="overallKicker">OVERALL READINESS · LIVE HARDWARE TELEMETRY</span>
           <div class="telemetry-score-row">
             <span id="score-num" class="telemetry-score">0</span><span class="telemetry-pct">%</span>
-            <span id="score-grade" class="grade-badge grade--B" aria-label="Grade">B</span>
+            <span id="score-grade" class="grade-badge grade--B" aria-label="Grade" data-i18n-aria="ariaGrade">B</span>
           </div>
           <div id="verdict-box" class="verdict-inline">
             <strong id="verdict-headline">—</strong>
@@ -274,7 +276,7 @@
 
       <!-- Milestone Bar + Clickable Reference Rig Pins -->
       <div class="milestone-section">
-        <div id="milestone-pins" class="milestone-pins" aria-label="Reference Rig Comparison Pins"></div>
+        <div id="milestone-pins" class="milestone-pins" aria-label="Reference Rig Comparison Pins" data-i18n-aria="ariaPins"></div>
         <div class="milestone-bar" aria-hidden="true">
           <div class="milestone-bar__grid">
             <span></span><span></span><span></span><span></span><span></span>
@@ -323,13 +325,13 @@
     </section>
 
     <!-- ══════════════ KEY FINDINGS TICKER ══════════════ -->
-    <section class="findings-ticker" aria-label="Key Hardware Findings">
+    <section class="findings-ticker" aria-label="Key Hardware Findings" data-i18n-aria="ariaFindings">
       <span class="findings-ticker__label" data-i18n="findingsLabel">KEY FINDINGS</span>
       <div id="findings-list" class="findings-list"></div>
     </section>
 
     <!-- ══════════════ TACTILE HARDWARE RACK ══════════════ -->
-    <section class="bento-card" aria-label="Hardware Specification Controls">
+    <section class="bento-card" aria-label="Hardware Specification Controls" data-i18n-aria="ariaControls">
       <div class="hardware-rack">
         <div class="spec-grid">
           <div class="field">

@@ -48,7 +48,8 @@ async function run() {
   const LOCALES = {
     uk: { ogLocale: 'uk_UA', canonical: 'https://sivochka.com/canirunUnity/uk/', imageAlt: 'Can I Run Unity? — перевірка, чи потягне ваш ПК Unity 6, URP, HDRP, VR і локальний ШІ прямо в браузері' },
     ru: { ogLocale: 'ru_RU', canonical: 'https://sivochka.com/canirunUnity/ru/', imageAlt: 'Can I Run Unity? — проверка, потянет ли ваш ПК Unity 6, URP, HDRP, VR и локальный ИИ прямо в браузере' },
-    ko: { ogLocale: 'ko_KR', canonical: 'https://sivochka.com/canirunUnity/ko/', imageAlt: 'Can I Run Unity? — 브라우저에서 내 PC가 Unity 6, URP, HDRP, VR, 로컬 AI를 실행할 수 있는지 확인' }
+    ko: { ogLocale: 'ko_KR', canonical: 'https://sivochka.com/canirunUnity/ko/', imageAlt: 'Can I Run Unity? — 브라우저에서 내 PC가 Unity 6, URP, HDRP, VR, 로컬 AI를 실행할 수 있는지 확인' },
+    pl: { ogLocale: 'pl_PL', canonical: 'https://sivochka.com/canirunUnity/pl/', imageAlt: 'Can I Run Unity? — sprawdź w przeglądarce, czy Twój PC obsłuży Unity 6, URP, HDRP, VR i lokalne AI' }
   };
 
   for (const [lang, meta] of Object.entries(LOCALES)) {
@@ -102,7 +103,7 @@ async function run() {
       `<meta name="twitter:image:alt" content="${escapeAttr(meta.imageAlt)}" />`
     );
 
-    // Fix relative favicon/manifest paths for nested /uk/, /ru/, /ko/ routes
+    // Fix relative favicon/manifest paths for nested /uk/, /ru/, /ko/, /pl/ routes
     html = html.replace(/href="\.\/favicon\.svg"/g, 'href="../favicon.svg"');
     html = html.replace(/href="\.\/manifest\.json"/g, 'href="../manifest.json"');
 
@@ -116,13 +117,15 @@ async function run() {
     'https://sivochka.com/canirunUnity/',
     'https://sivochka.com/canirunUnity/uk/',
     'https://sivochka.com/canirunUnity/ru/',
-    'https://sivochka.com/canirunUnity/ko/'
+    'https://sivochka.com/canirunUnity/ko/',
+    'https://sivochka.com/canirunUnity/pl/'
   ];
 
   const hreflangs = `    <xhtml:link rel="alternate" hreflang="en" href="https://sivochka.com/canirunUnity/" />
     <xhtml:link rel="alternate" hreflang="uk" href="https://sivochka.com/canirunUnity/uk/" />
     <xhtml:link rel="alternate" hreflang="ru" href="https://sivochka.com/canirunUnity/ru/" />
     <xhtml:link rel="alternate" hreflang="ko" href="https://sivochka.com/canirunUnity/ko/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://sivochka.com/canirunUnity/pl/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://sivochka.com/canirunUnity/" />`;
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -143,7 +146,7 @@ ${hreflangs}
 `;
 
   fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap, 'utf8');
-  console.log('Generated 4 localized HTML routes (en, uk, ru, ko) with 12-item FAQPage JSON-LD, static requirements section and sitemap.xml');
+  console.log('Generated 5 localized HTML routes (en, uk, ru, ko, pl) with 12-item FAQPage JSON-LD, static requirements section and sitemap.xml');
 }
 
 run().catch((err) => {
